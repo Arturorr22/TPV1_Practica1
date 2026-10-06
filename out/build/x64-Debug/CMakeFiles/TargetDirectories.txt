@@ -1,0 +1,3 @@
+C:/Users/papom/Documents/GitHub/TPV1_Practica1/out/build/x64-Debug/CMakeFiles/ProyectoSDL.dir
+C:/Users/papom/Documents/GitHub/TPV1_Practica1/out/build/x64-Debug/CMakeFiles/edit_cache.dir
+C:/Users/papom/Documents/GitHub/TPV1_Practica1/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir
