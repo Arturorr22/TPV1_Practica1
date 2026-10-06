@@ -1,0 +1,3 @@
+C:/Users/artur/Desktop/Uni/TPV1/TPV1_Practica1/build/CMakeFiles/ProyectoSDL.dir
+C:/Users/artur/Desktop/Uni/TPV1/TPV1_Practica1/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/artur/Desktop/Uni/TPV1/TPV1_Practica1/build/CMakeFiles/ZERO_CHECK.dir
