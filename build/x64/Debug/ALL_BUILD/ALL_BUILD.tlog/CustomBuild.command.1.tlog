@@ -1,6 +1,6 @@
-^C:\USERS\ARTUR\DESKTOP\UNI\TPV1\TPV1_PRACTICA1\CMAKELISTS.TXT
+^C:\USERS\ARTUR\DESKTOP\UNI\TPV1\TPV1_PRACTICA1\PROYECTOSDL\CMAKELISTS.TXT
 setlocal
-"C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/artur/Desktop/Uni/TPV1/TPV1_Practica1 -BC:/Users/artur/Desktop/Uni/TPV1/TPV1_Practica1/build --check-stamp-file C:/Users/artur/Desktop/Uni/TPV1/TPV1_Practica1/build/CMakeFiles/generate.stamp
+"C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/artur/Desktop/Uni/TPV1/TPV1_Practica1/ProyectoSDL -BC:/Users/artur/Desktop/Uni/TPV1/TPV1_Practica1/ProyectoSDL/build --check-stamp-file C:/Users/artur/Desktop/Uni/TPV1/TPV1_Practica1/ProyectoSDL/build/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone

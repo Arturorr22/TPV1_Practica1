@@ -2,6 +2,7 @@
 #define VECTOR2D_H
 
 #include <iostream>
+#include <cmath>
 
 /**
  * Vector bidimensional genérico.
@@ -17,13 +18,30 @@ public:
 
 	// Coordenadas del vector
 	T getX() const { return x; }
+	T getY() const { return y; }
 
 	// Operadores
 	Vector2D operator+(const Vector2D& otro) const {
 		return {x + otro.x, y + otro.y};
 	}
+	Vector2D operator-(const Vector2D& otro) const {
+		return {x - otro.x, y - otro.y};
+	}
+	T operator*(const Vector2D& otro) const {
+		return x * otro.x + y * otro.y;
+	}
+	Vector2D operator*(const T& escalar) const {
+		return {escalar * x, escalar * y};
+	}
+	void operator+=(const Vector2D& otro) {
+		x += otro.x;
+		y += otro.y;
+	}
 
-	// TODO: completar
+	// Método para obtener la longitud del vector
+	T length() const {
+		return std::sqrt(x * x + y * y);
+	}
 
 	// Operadores de entrada/salida
 	friend std::ostream& operator<<(std::ostream& out, const Vector2D& v) {
@@ -31,6 +49,8 @@ public:
 	}
 };
 
-// TODO: definir alias Point2D<T>
+// Definimos el alias Point2D
+template<std::floating_point T = float>
+using Point2D = Vector2D<T>;
 
 #endif // VECTOR2D_H

@@ -1,16 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="18.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="C:\Users\artur\Desktop\Uni\TPV1\TPV1_Practica1\src\main.cpp">
+    <ClCompile Include="C:\Users\artur\Desktop\Uni\TPV1\TPV1_Practica1\ProyectoSDL\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\artur\Desktop\Uni\TPV1\TPV1_Practica1\ProyectoSDL\src\game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\artur\Desktop\Uni\TPV1\TPV1_Practica1\ProyectoSDL\src\rectangle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\artur\Desktop\Uni\TPV1\TPV1_Practica1\ProyectoSDL\src\texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="C:\Users\artur\Desktop\Uni\TPV1\TPV1_Practica1\CMakeLists.txt" />
+    <CustomBuild Include="C:\Users\artur\Desktop\Uni\TPV1\TPV1_Practica1\ProyectoSDL\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{4B08026C-DE68-3350-8285-2DEFCC9BA059}</UniqueIdentifier>
+      <UniqueIdentifier>{60C6C30F-9685-3E6D-9889-6365B37837CE}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

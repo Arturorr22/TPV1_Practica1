@@ -1,6 +1,6 @@
-^C:\USERS\ARTUR\DESKTOP\UNI\TPV1\TPV1_PRACTICA1\BUILD\CMAKEFILES\D91F59F711DFA8D0B176E958F7B2EEC7\GENERATE.STAMP.RULE
+^C:\USERS\ARTUR\DESKTOP\UNI\TPV1\TPV1_PRACTICA1\PROYECTOSDL\BUILD\CMAKEFILES\C871BDD67E64372821F820C603F4C90E\GENERATE.STAMP.RULE
 setlocal
-"C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/artur/Desktop/Uni/TPV1/TPV1_Practica1 -BC:/Users/artur/Desktop/Uni/TPV1/TPV1_Practica1/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/artur/Desktop/Uni/TPV1/TPV1_Practica1/build/ProyectoSDL.slnx
+"C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/artur/Desktop/Uni/TPV1/TPV1_Practica1/ProyectoSDL -BC:/Users/artur/Desktop/Uni/TPV1/TPV1_Practica1/ProyectoSDL/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/artur/Desktop/Uni/TPV1/TPV1_Practica1/ProyectoSDL/build/ProyectoSDL.slnx
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone

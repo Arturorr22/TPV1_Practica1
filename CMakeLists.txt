@@ -63,4 +63,7 @@ endif()
 add_executable(ProyectoSDL
 	# Archivo de código
 	src/main.cpp
+	src/game.cpp
+	src/rectangle.cpp
+	src/texture.cpp
 )

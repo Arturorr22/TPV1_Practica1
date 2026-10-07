@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "ProyectoSDL.dir\\Debug\\game.obj",
+            "outputs": [
+                "C:\\Users\\artur\\Desktop\\Uni\\TPV1\\TPV1_Practica1\\ProyectoSDL\\build\\ProyectoSDL.dir\\Debug\\vc145.pdb",
+                "ProyectoSDL.dir\\Debug\\"
+            ],
+            "requires": []
+        }
+    ]
+}

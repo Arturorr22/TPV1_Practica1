@@ -1,0 +1,17 @@
+================================================================================
+Linker Errors
+Generated: 2026-10-06T17:25:27.121Z
+Total Errors: 4
+================================================================================
+
+[LNK2019] (MSVC)
+símbolo externo "public: __cdecl Game::Game(void)" (??0Game@@QEAA@XZ) sin resolver al que se hace referencia en la función main [C:\Users\artur\Desktop\Uni\TPV1\TPV1_Practica1\ProyectoSDL\build\ProyectoSDL.vcxproj]
+
+[LNK2019] (MSVC)
+símbolo externo "public: __cdecl Game::~Game(void)" (??1Game@@QEAA@XZ) sin resolver al que se hace referencia en la función main [C:\Users\artur\Desktop\Uni\TPV1\TPV1_Practica1\ProyectoSDL\build\ProyectoSDL.vcxproj]
+
+[LNK2019] (MSVC)
+símbolo externo "public: void __cdecl Game::run(void)" (?run@Game@@QEAAXXZ) sin resolver al que se hace referencia en la función main [C:\Users\artur\Desktop\Uni\TPV1\TPV1_Practica1\ProyectoSDL\build\ProyectoSDL.vcxproj]
+
+[LNK1120] (MSVC)
+3 externos sin resolver [C:\Users\artur\Desktop\Uni\TPV1\TPV1_Practica1\ProyectoSDL\build\ProyectoSDL.vcxproj]
