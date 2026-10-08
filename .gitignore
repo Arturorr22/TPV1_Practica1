@@ -1,0 +1,8 @@
+# Archivos a ignorar de VSCode 
+.vscode/
+
+# Archivos a ignorar de VS
+.vs/
+
+# Carpeta de compilación de CMake
+build/
