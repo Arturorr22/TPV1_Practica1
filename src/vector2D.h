@@ -33,9 +33,10 @@ public:
 	Vector2D operator*(const T& escalar) const {
 		return {escalar * x, escalar * y};
 	}
-	void operator+=(const Vector2D& otro) {
+	Vector2D& operator+=(const Vector2D& otro) {
 		x += otro.x;
 		y += otro.y;
+		return *this;
 	}
 
 	// Método para obtener la longitud del vector
