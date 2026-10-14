@@ -7,31 +7,23 @@
 class Balloon {
     private:
 
-        /* 
-        Rectángulo que contiene la posición y las dimensiones
-        del globo.
-        Posición => .corner
-        Dimensiones => .width y .height 
-        */
+        // Rectángulo que contiene la posición y las dimensiones
+        // del globo.
+        // Posición => .corner
+        // Dimensiones => .width y .height 
         Rectangle balloonRect;
 
-        /* 
-        Color del globo que se corresponde con el índice de
-        la fila en la textura 
-        */
+        // Color del globo que se corresponde con el índice de
+        // la fila en la textura 
         int color;
 
-        /*
-        Velocidad del globo, de tipo Vector2D
-        */
+        // Velocidad del globo, de tipo Vector2D
         Vector2D<> speed;
     
     public:
 
-        /* 
-        Método que devuelve true si detecta una colisión con
-        otro rectángulo
-        */
+        // Método que devuelve true si detecta una colisión con
+        // otro rectángulo
         bool hit(const Rectangle& obj) const;
 };
 
