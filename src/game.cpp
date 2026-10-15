@@ -6,6 +6,12 @@
 
 #include "texture.h"
 
+// GENERACIÓN ALEATORIA DE GLOBOS
+#include "rectangle.h"
+#include "vector2D.h"
+#include "balloon.h"
+// GENERACIÓN ALEATORIA DE GLOBOS
+
 using namespace std;
 
 // Constantes
@@ -22,9 +28,10 @@ struct TextureSpec
 	int ncols = 1;
 };
 
-constexpr array<TextureSpec, Game::NUM_TEXTURES> textureList{
-	TextureSpec{"bow.png", 1, 2},
-	{"arrow.png"},
+constexpr array<TextureSpec, Game::NUM_TEXTURES> textureList {
+	TextureSpec{"balloons.png", 7, 6},
+	{"arrow.png"},  
+	{"bow.png", 1, 2},
 };
 
 Game::Game()
@@ -58,6 +65,13 @@ Game::Game()
 	// SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
 	// TODO: crear los objetos del juego
+
+	// Configuramos la semilla del generador para la generación de globos
+	generator.seed(std::random_device()());
+
+	// Almacenamos el tiempo actual al iniciar el programa en las variable LastBalloonTime y LastUpdateTime
+	LastBalloonTime = LastUpdateTime = SDL_GetTicks();
+
 }
 
 Game::~Game()
@@ -72,6 +86,14 @@ Game::render() const
 
 	// TODO
 
+	// GENERACIÓN ALEATORIA DE GLOBOS {
+
+	for (std::size_t i = 0; i < balloons.size(); ++i){
+		balloons[i].render();
+	}
+	
+	// { GENERACIÓN ALEATORIA DE GLOBOS
+
 	SDL_RenderPresent(renderer);
 }
 
@@ -79,12 +101,60 @@ void
 Game::update()
 {
 	// TODO
+
+	// GENERACIÓN ALEATORIA DE GLOBOS {
+
+	frameTime = SDL_GetTicks();
+
+	if (frameTime - LastBalloonTime > 2000) {
+
+		// Calculamos, de manera pseudoaleatoria, la posición en el borde inferior en la que aparecerá
+		// el globo, su color y su velocidad en y
+		int c =  uniform_int_distribution<int>(0, 6)(generator);
+		float sY = uniform_real_distribution<float>(-0.10f, -0.02f)(generator);
+		float x =  uniform_real_distribution<float>(WINDOW_WIDTH / 3, WINDOW_WIDTH - textures[BALLOON]->getFrameWidth())(generator);
+	
+		// Creamos el rectángulo y el vector velocidad en base a esto último 
+		// El rectángulo se encontrará en el borde inferior de la pantalla, 
+		// con un tamaño equivalente a la mitad del tamaño de un solo frame de la textura
+		Rectangle r = Rectangle({x, WINDOW_HEIGHT}, 
+			textures[BALLOON]->getFrameWidth() / 2,
+			textures[BALLOON]->getFrameHeight() / 2
+		);
+		Vector2D<> s = Vector2D(0.0f, sY);
+	
+		// Con todo calculado, creamos un globo y lo incorporamos al vector de globos
+		Balloon b = Balloon(r, c, s, textures[BALLOON]);
+		balloons.push_back(b);
+
+		// Actualizamos el valor de LastBalloonTime
+		LastBalloonTime = SDL_GetTicks();
+	}
+
+	if (frameTime - LastUpdateTime > FRAME_PERIOD) {
+
+		// Una vez hemos generado (o no) un globo, actualizamos todos los globos del vector de globos
+		for (std::size_t i = 0; i < balloons.size(); ++i) {
+
+			// Si el globo se sale de los límites, lo eliminamos
+			if(!(balloons[i].update(FRAME_PERIOD))) {
+				balloons.erase(balloons.begin() + i);
+			}
+		}
+
+		// Actualizamos el valor de LastUpdateTime
+		LastUpdateTime = SDL_GetTicks();
+	}
+
+	// } GENERACIÓN ALEATORIA DE GLOBOS
 }
 
 void
 Game::run()
 {
 	while (!exit) {
+		render();
+		update();
 		// TODO: implementar bucle del juego
 	}
 }
@@ -104,7 +174,7 @@ Game::handleEvents()
 }
 
 // bool
-// Game::checkCollision(const Rectangle& rect)
+// Game::checkCollision(const Rectangle& r)
 // {
 //	// TODO
 //	return false;

@@ -6,6 +6,11 @@
 #include <istream>
 #include <vector>
 
+// GENERACIÓN ALEATORIA DE GLOBOS
+#include <random>
+#include "balloon.h"
+// GENERACIÓN ALEATORIA DE GLOBOS
+
 // #include "rectangle.h"
 
 // Declaraciones anticipadas
@@ -27,8 +32,9 @@ public:
 
 	enum TextureName
 	{
-		BOW = 0,
+		BALLOON = 0,
 		ARROW,
+		BOW,
 		NUM_TEXTURES
 	};
 
@@ -45,6 +51,19 @@ private:
 
 	// Elemento del juego
 	// TODO: añadir atributos para los objetos del juego
+
+	// GENERACIÓN ALEATORIA DE GLOBOS {
+
+	// Generador de números pseudoaleatorios
+	std::mt19937_64 generator;
+
+	// Variables para gestionar el tiempo
+	uint64_t frameTime, LastBalloonTime, LastUpdateTime;
+
+	// Vector que almacena los globos generados
+	std::vector<Balloon> balloons;
+
+	// } GENERACIÓN ALEATORIA DE GLOBOS
 
 public:
 	Game();
