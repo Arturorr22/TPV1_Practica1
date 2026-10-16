@@ -5,6 +5,7 @@
 #include <SDL3_image/SDL_image.h>
 
 #include "texture.h"
+#include "arrow.h"
 
 // GENERACIÓN ALEATORIA DE GLOBOS
 #include "rectangle.h"
@@ -18,6 +19,7 @@ using namespace std;
 constexpr const char* const WINDOW_TITLE = "Bow & Arrow 1.0";
 constexpr const char* IMAGE_ROOT = "../assets/images/";
 constexpr const char* LEVEL_ROOT = "../assets/levels/";
+const float FRAME_PERIOD_SEG = (float)FRAME_PERIOD / 1000;
 
 // Estructura para especificar las texturas que hay que
 // cargar y el tamaño de su matriz de frames
@@ -65,6 +67,8 @@ Game::Game()
 	// SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
 	// TODO: crear los objetos del juego
+	Arrow* arrow = new Arrow(this, textures[ARROW], Vector2D<>(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), Vector2D<>(0.5f, 0.0f));
+	arrows.push_back(arrow);
 
 	// Configuramos la semilla del generador para la generación de globos
 	generator.seed(std::random_device()());
@@ -84,7 +88,10 @@ Game::render() const
 {
 	SDL_RenderClear(renderer);
 
-	// TODO
+	// Generación de flechas
+	for (std::size_t i = 0; i < arrows.size(); ++i) {
+		arrows[i]->render();
+	}
 
 	// GENERACIÓN ALEATORIA DE GLOBOS {
 
@@ -100,7 +107,14 @@ Game::render() const
 void
 Game::update()
 {
-	// TODO
+	// Actualización de flechas
+	for (std::size_t i = 0; i < arrows.size(); ++i) {
+		if (!(arrows[i]->update(FRAME_PERIOD_SEG))) {
+			delete arrows[i];
+			arrows.erase(arrows.begin() + i);
+			--i;
+		}
+	}
 
 	// GENERACIÓN ALEATORIA DE GLOBOS {
 
@@ -153,9 +167,14 @@ void
 Game::run()
 {
 	while (!exit) {
-		render();
+		int frameTime = SDL_GetTicks();
+		handleEvents();
 		update();
-		// TODO: implementar bucle del juego
+		render();
+		int frameTime2 = SDL_GetTicks();
+		if (frameTime - frameTime2 < FRAME_PERIOD) {
+			SDL_Delay(FRAME_PERIOD - (frameTime - frameTime2));
+		}
 	}
 }
 
