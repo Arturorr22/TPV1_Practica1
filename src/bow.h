@@ -12,7 +12,7 @@ class Bow {
         // del arco.
         // Posición => .corner
         // Dimensiones => .width y .height 
-        Rectangle Rect;
+        Rectangle rect;
 
         // Velocidad del arco, de tipo Vector2D (x, y)
         Vector2D<> speed;
@@ -27,6 +27,10 @@ class Bow {
         Texture* texture;
 
     public:
+
+        // Constructora del arco
+        Bow(Rectangle destRect, Vector2D<> speed, int arrows, bool loaded, Texture* texture);
+        Bow();
 
         // Para manejar los eventos
         void handleEvent(const SDL_Event& event);

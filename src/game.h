@@ -11,7 +11,13 @@
 #include "balloon.h"
 // GENERACIÓN ALEATORIA DE GLOBOS
 
-// #include "rectangle.h"
+// ARCO
+#include "bow.h"
+// ARCO
+
+// Declaraciones anticipadas
+#include "rectangle.h"
+#include "vector2D.h"
 
 // Declaraciones anticipadas
 class Texture;
@@ -64,6 +70,11 @@ private:
 	std::vector<Balloon> balloons;
 
 	// } GENERACIÓN ALEATORIA DE GLOBOS
+
+	// ARCO 
+	Bow bow;
+	// ARCO
+
 
 public:
 	Game();

@@ -7,9 +7,6 @@
 #include "texture.h"
 
 // GENERACIÓN ALEATORIA DE GLOBOS
-#include "rectangle.h"
-#include "vector2D.h"
-#include "balloon.h"
 // GENERACIÓN ALEATORIA DE GLOBOS
 
 using namespace std;
@@ -72,6 +69,10 @@ Game::Game()
 	// Almacenamos el tiempo actual al iniciar el programa en las variable LastBalloonTime y LastUpdateTime
 	LastBalloonTime = LastUpdateTime = SDL_GetTicks();
 
+	// Creamos el arco
+	Rectangle r = Rectangle({0, (float)(WINDOW_HEIGHT / 2 - textures[BOW]->getFrameHeight() / 2)}, 
+							textures[BOW]->getFrameHeight() / 2, textures[BOW]->getFrameWidth() / 2);
+	bow = Bow(r, {0, 0}, 8, false, textures[BOW]);
 }
 
 Game::~Game()
@@ -94,6 +95,10 @@ Game::render() const
 	
 	// { GENERACIÓN ALEATORIA DE GLOBOS
 
+	// ARCO
+	bow.render();
+	// ARCO
+
 	SDL_RenderPresent(renderer);
 }
 
@@ -111,8 +116,8 @@ Game::update()
 		// Calculamos, de manera pseudoaleatoria, la posición en el borde inferior en la que aparecerá
 		// el globo, su color y su velocidad en y
 		int c =  uniform_int_distribution<int>(0, 6)(generator);
-		float sY = uniform_real_distribution<float>(-0.10f, -0.02f)(generator);
-		float x =  uniform_real_distribution<float>(WINDOW_WIDTH / 3, WINDOW_WIDTH - textures[BALLOON]->getFrameWidth())(generator);
+		float sY = uniform_real_distribution<float>(-0.05f, -0.02f)(generator);
+		float x =  uniform_real_distribution<float>(WINDOW_WIDTH / 3, WINDOW_WIDTH - textures[BALLOON]->getFrameWidth() / 2)(generator);
 	
 		// Creamos el rectángulo y el vector velocidad en base a esto último 
 		// El rectángulo se encontrará en el borde inferior de la pantalla, 
@@ -142,6 +147,10 @@ Game::update()
 			}
 		}
 
+		// ARCO
+		bow.update(FRAME_PERIOD);
+		// ARCO
+
 		// Actualizamos el valor de LastUpdateTime
 		LastUpdateTime = SDL_GetTicks();
 	}
@@ -153,6 +162,7 @@ void
 Game::run()
 {
 	while (!exit) {
+		handleEvents();
 		render();
 		update();
 		// TODO: implementar bucle del juego
@@ -168,7 +178,9 @@ Game::handleEvents()
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_EVENT_QUIT)
 			exit = true;
-
+		else if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP) {
+			bow.handleEvent(event);
+		}
 		// TODO
 	}
 }
