@@ -21,6 +21,7 @@
 
 // Declaraciones anticipadas
 class Texture;
+class Arrow;
 
 /**
  * Clase principal del juego.
@@ -57,6 +58,7 @@ private:
 
 	// Elemento del juego
 	// TODO: añadir atributos para los objetos del juego
+	std::vector<Arrow*> arrows;
 
 	// GENERACIÓN ALEATORIA DE GLOBOS {
 

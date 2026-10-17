@@ -5,6 +5,7 @@
 #include <SDL3_image/SDL_image.h>
 
 #include "texture.h"
+#include "arrow.h"
 
 // GENERACIÓN ALEATORIA DE GLOBOS
 // GENERACIÓN ALEATORIA DE GLOBOS
@@ -62,6 +63,8 @@ Game::Game()
 	// SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
 	// TODO: crear los objetos del juego
+	Arrow* arrow = new Arrow(this, textures[ARROW], Vector2D<>(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), Vector2D<>(0.5f, 0.0f));
+	arrows.push_back(arrow);
 
 	// Configuramos la semilla del generador para la generación de globos
 	generator.seed(std::random_device()());
@@ -85,7 +88,10 @@ Game::render() const
 {
 	SDL_RenderClear(renderer);
 
-	// TODO
+	// Generación de flechas
+	for (std::size_t i = 0; i < arrows.size(); ++i) {
+		arrows[i]->render();
+	}
 
 	// GENERACIÓN ALEATORIA DE GLOBOS {
 
@@ -105,7 +111,6 @@ Game::render() const
 void
 Game::update()
 {
-	// TODO
 
 	// GENERACIÓN ALEATORIA DE GLOBOS {
 
@@ -151,6 +156,15 @@ Game::update()
 		bow.update(FRAME_PERIOD);
 		// ARCO
 
+		// Actualización de flechas
+		for (std::size_t i = 0; i < arrows.size(); ++i) {
+			if (!(arrows[i]->update(FRAME_PERIOD))) {
+				delete arrows[i];
+				arrows.erase(arrows.begin() + i);
+				--i;
+			}
+		}
+
 		// Actualizamos el valor de LastUpdateTime
 		LastUpdateTime = SDL_GetTicks();
 	}
@@ -162,10 +176,14 @@ void
 Game::run()
 {
 	while (!exit) {
+		int frameTime = SDL_GetTicks();
 		handleEvents();
-		render();
 		update();
-		// TODO: implementar bucle del juego
+		render();
+		int frameTime2 = SDL_GetTicks();
+		if (frameTime - frameTime2 < FRAME_PERIOD) {
+			SDL_Delay(FRAME_PERIOD - (frameTime - frameTime2));
+		}
 	}
 }
 
