@@ -63,7 +63,11 @@ Game::Game()
 	// SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
 	// TODO: crear los objetos del juego
-	Arrow* arrow = new Arrow(this, textures[ARROW], Vector2D<>(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2), Vector2D<>(0.5f, 0.0f));
+	Rectangle arrowRect({ WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f },
+		textures[ARROW]->getFrameWidth(),
+		textures[ARROW]->getFrameHeight());
+	Vector2D<> arrowSpeed(0.5f, 0.0f);
+	Arrow* arrow = new Arrow(this, arrowRect, arrowSpeed, textures[ARROW]);
 	arrows.push_back(arrow);
 
 	// Configuramos la semilla del generador para la generación de globos
@@ -141,6 +145,7 @@ Game::update()
 		LastBalloonTime = SDL_GetTicks();
 	}
 
+	////////////////////////////////////////////////////////Arturo creo que hay que quitar este if, porque el ritmo ya lo controla el run
 	if (frameTime - LastUpdateTime > FRAME_PERIOD) {
 
 		// Una vez hemos generado (o no) un globo, actualizamos todos los globos del vector de globos
@@ -176,13 +181,13 @@ void
 Game::run()
 {
 	while (!exit) {
-		int frameTime = SDL_GetTicks();
+		int frameStart = SDL_GetTicks();
 		handleEvents();
 		update();
 		render();
-		int frameTime2 = SDL_GetTicks();
-		if (frameTime - frameTime2 < FRAME_PERIOD) {
-			SDL_Delay(FRAME_PERIOD - (frameTime - frameTime2));
+		int frameEnd = SDL_GetTicks();
+		if (frameEnd - frameStart < FRAME_PERIOD) {
+			SDL_Delay(FRAME_PERIOD - (frameEnd - frameStart));
 		}
 	}
 }
