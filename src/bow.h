@@ -40,6 +40,12 @@ class Bow {
 
         // Actualiza el arco en cada ciclo de juego
         bool update(float delta);
+
+        // Método que devuelve el valor de arrows
+        int getArrows() const;
+
+        // Método que devuelve el rectángulo del arco
+        Rectangle getRect() const;
     
 };
 

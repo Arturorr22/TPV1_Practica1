@@ -13,14 +13,17 @@ void Arrow::render() const {
 
 // Implementa la lógica de actualización de la flecha
 bool Arrow::update(float delta) {
+
 	// Actualiza la posición de la flecha según su velocidad y el tiempo transcurrido
-	Vector2D<> displacement = speed * delta;
-	rect.move(displacement);
+	rect.move(speed * delta);
+
+	// Creamos el rectángulo de la punta
+	Rectangle r = Rectangle({rect.getTopLeftCorner().getX() + (rect.getWidth() * 2 / 3), 
+							rect.getTopLeftCorner().getY() + (rect.getHeight() * 1 / 3)}, 
+							rect.getWidth() / 4, rect.getHeight() / 2);
+	game->checkCollision(r);
 
 	// Comprueba si la flecha ha salido de la pantalla mirando si la esquina superior 
 	// izquierda del rectángulo está fuera de los límites de la ventana
-	if (rect.getTopLeftCorner().getX() > Game::WINDOW_WIDTH) {
-		return false;
-	}
-	return true;
+	return !(rect.getTopLeftCorner().getX() > Game::WINDOW_WIDTH);
 }

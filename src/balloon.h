@@ -23,6 +23,12 @@ class Balloon {
 
         // Puntero que apunta a la textura del globo
         Texture* texture;
+
+        // Variable que define si el globo debe explotar
+        bool exploted;
+
+        // Variable para la animación
+        int animation;
     
     public:
 
@@ -31,7 +37,7 @@ class Balloon {
 
         // Método que devuelve true si detecta una colisión con
         // otro rectángulo
-        bool hit(const Rectangle& obj) const;
+        bool hit(const Rectangle& obj);
 
         // Método que renderiza el objeto en la ventana de acuerdo a su forma y textura
         void render() const;

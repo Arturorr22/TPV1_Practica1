@@ -58,7 +58,7 @@ private:
 
 	// Elemento del juego
 	// TODO: añadir atributos para los objetos del juego
-	std::vector<Arrow*> arrows;
+	std::vector<Arrow> arrowsvector;
 
 	// GENERACIÓN ALEATORIA DE GLOBOS {
 
@@ -66,7 +66,7 @@ private:
 	std::mt19937_64 generator;
 
 	// Variables para gestionar el tiempo
-	uint64_t frameTime, LastBalloonTime, LastUpdateTime;
+	uint64_t frameTime, LastBalloonTime;
 
 	// Vector que almacena los globos generados
 	std::vector<Balloon> balloons;
@@ -77,19 +77,22 @@ private:
 	Bow bow;
 	// ARCO
 
+	// Número de flechas
+	int arrows = 7;
 
 public:
 	Game();
 	~Game();
 
+	
 	// Obtiene una textura por su nombre
 	Texture* getTexture(TextureName name) const;
-
+	
 	// Ejecuta el bucle principal del juego
 	void run();
 
 	// Comprueba si hay algún objeto colocado en ese rectángulo
-	// bool checkCollision(const Rectangle& rect);
+	bool checkCollision(const Rectangle& rect);
 };
 
 inline Texture*

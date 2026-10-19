@@ -63,3 +63,13 @@ bool Bow::update(float delta) {
     }
     return true;
 }
+
+// Implementación del método getArrows del arco
+int Bow::getArrows() const {
+    return arrows;
+}
+
+// Implementación del método getRect del arco
+Rectangle Bow::getRect() const {
+    return rect;
+}

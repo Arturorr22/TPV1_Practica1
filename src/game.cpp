@@ -63,23 +63,17 @@ Game::Game()
 	// SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
 	// TODO: crear los objetos del juego
-	Rectangle arrowRect({ WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f },
-		textures[ARROW]->getFrameWidth(),
-		textures[ARROW]->getFrameHeight());
-	Vector2D<> arrowSpeed(0.5f, 0.0f);
-	Arrow* arrow = new Arrow(this, arrowRect, arrowSpeed, textures[ARROW]);
-	arrows.push_back(arrow);
 
 	// Configuramos la semilla del generador para la generación de globos
 	generator.seed(std::random_device()());
 
 	// Almacenamos el tiempo actual al iniciar el programa en las variable LastBalloonTime y LastUpdateTime
-	LastBalloonTime = LastUpdateTime = SDL_GetTicks();
+	LastBalloonTime = SDL_GetTicks();
 
 	// Creamos el arco
-	Rectangle r = Rectangle({0, (float)(WINDOW_HEIGHT / 2 - textures[BOW]->getFrameHeight() / 2)}, 
-							textures[BOW]->getFrameHeight() / 2, textures[BOW]->getFrameWidth() / 2);
-	bow = Bow(r, {0, 0}, 8, false, textures[BOW]);
+	Rectangle bowRect = Rectangle({0, (float)(WINDOW_HEIGHT / 2 - textures[BOW]->getFrameHeight() / 2)}, 
+								  textures[BOW]->getFrameHeight() / 2, textures[BOW]->getFrameWidth() / 2);
+	bow = Bow(bowRect, {0, 0}, arrows, false, textures[BOW]);
 }
 
 Game::~Game()
@@ -93,8 +87,8 @@ Game::render() const
 	SDL_RenderClear(renderer);
 
 	// Generación de flechas
-	for (std::size_t i = 0; i < arrows.size(); ++i) {
-		arrows[i]->render();
+	for (std::size_t i = 0; i < arrowsvector.size(); ++i) {
+		arrowsvector[i].render();
 	}
 
 	// GENERACIÓN ALEATORIA DE GLOBOS {
@@ -131,22 +125,19 @@ Game::update()
 		// Creamos el rectángulo y el vector velocidad en base a esto último 
 		// El rectángulo se encontrará en el borde inferior de la pantalla, 
 		// con un tamaño equivalente a la mitad del tamaño de un solo frame de la textura
-		Rectangle r = Rectangle({x, WINDOW_HEIGHT}, 
+		Rectangle bowRect = Rectangle({x, WINDOW_HEIGHT}, 
 			textures[BALLOON]->getFrameWidth() / 2,
 			textures[BALLOON]->getFrameHeight() / 2
 		);
 		Vector2D<> s = Vector2D(0.0f, sY);
 	
 		// Con todo calculado, creamos un globo y lo incorporamos al vector de globos
-		Balloon b = Balloon(r, c, s, textures[BALLOON]);
+		Balloon b = Balloon(bowRect, c, s, textures[BALLOON]);
 		balloons.push_back(b);
 
 		// Actualizamos el valor de LastBalloonTime
 		LastBalloonTime = SDL_GetTicks();
 	}
-
-	////////////////////////////////////////////////////////Arturo creo que hay que quitar este if, porque el ritmo ya lo controla el run
-	if (frameTime - LastUpdateTime > FRAME_PERIOD) {
 
 		// Una vez hemos generado (o no) un globo, actualizamos todos los globos del vector de globos
 		for (std::size_t i = 0; i < balloons.size(); ++i) {
@@ -161,18 +152,28 @@ Game::update()
 		bow.update(FRAME_PERIOD);
 		// ARCO
 
-		// Actualización de flechas
-		for (std::size_t i = 0; i < arrows.size(); ++i) {
-			if (!(arrows[i]->update(FRAME_PERIOD))) {
-				delete arrows[i];
-				arrows.erase(arrows.begin() + i);
-				--i;
-			}
+		if (bow.getArrows() < arrows) {
+			
+			// Guardamos el rectángulo del arco para usarlo para crear el rectángulo de la flecha
+			Rectangle bowRect = bow.getRect();
+			Rectangle arrowRect({0, bowRect.getTopLeftCorner().getY() + bowRect.getHeight() / 2},
+								textures[ARROW]->getFrameWidth() / 3,
+								textures[ARROW]->getFrameHeight() / 3);
+
+			// Creamos la flecha
+			Arrow arrow = Arrow(this, arrowRect, Vector2D<>(0.1f, 0.0f), textures[ARROW]);
+			arrowsvector.push_back(arrow);
+
+			// Actualizamos el valor de arrows al actual 
+			arrows = bow.getArrows();
 		}
 
-		// Actualizamos el valor de LastUpdateTime
-		LastUpdateTime = SDL_GetTicks();
-	}
+		// Actualización de flechas
+		for (std::size_t i = 0; i < arrowsvector.size(); ++i) {
+			if (!(arrowsvector[i].update(FRAME_PERIOD))) {
+				arrowsvector.erase(arrowsvector.begin() + i);
+			}
+		}
 
 	// } GENERACIÓN ALEATORIA DE GLOBOS
 }
@@ -208,9 +209,10 @@ Game::handleEvents()
 	}
 }
 
-// bool
-// Game::checkCollision(const Rectangle& r)
-// {
-//	// TODO
-//	return false;
-// }
+bool
+Game::checkCollision(const Rectangle& rect) {
+	// TODO
+	std::size_t i = 0;
+	while (i < balloons.size() && !balloons[i].hit(rect)) ++i;
+	return false;
+}
