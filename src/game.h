@@ -61,7 +61,7 @@ private:
 	int baldelay = 2000;
 	
 	// Arco
-	Bow bow;
+	Bow* bow;
 	
 	// Generador de números pseudoaleatorios
 	std::mt19937_64 generator;
@@ -70,10 +70,10 @@ private:
 	uint64_t LastBalloonTime;
 	
 	// Vector que almacena los globos generados
-	std::vector<Balloon> balloonsVector;
+	std::vector<Balloon*> balloonsVector;
 	
 	// Elementos del juego
-	std::vector<Arrow> arrowsVector;
+	std::vector<Arrow*> arrowsVector;
 
 public:
 

@@ -70,9 +70,9 @@ Game::Game()
 	nivel.close();
 	
 	// Creamos el arco
-	Rectangle bowRect({0, (float)(WINDOW_HEIGHT / 2 - textures[BOW]->getFrameHeight() / 2)}, 
-		textures[BOW]->getFrameHeight() / 2, textures[BOW]->getFrameWidth() / 2);
-	bow = Bow(bowRect, {0, 0}, arrows, false, textures[BOW]);
+	Rectangle bowRect({0, (float)(WINDOW_HEIGHT / 2 - WINDOW_HEIGHT / 3.15f)}, 
+		WINDOW_HEIGHT / 3.15f, WINDOW_WIDTH / 4);
+	bow = new Bow(bowRect, {0, 0}, arrows, false, textures[BOW]);
 	
 	// Configuramos la semilla del generador para la generación de globos
 	generator.seed(std::random_device()());
@@ -83,7 +83,24 @@ Game::Game()
 
 Game::~Game()
 {
-	// TODO: liberar la memoria reservada por la clase
+	// Destruimos los globos, las flechas y el arco
+	for (std::size_t j = 0; j < balloonsVector.size(); ++j) {
+		delete balloonsVector[j];
+	} 
+	for (std::size_t k = 0; k < arrowsVector.size(); ++k) {
+		delete arrowsVector[k];
+	}
+	delete bow;
+
+	// Destruimos las texturas
+	for (std::size_t i = 0; i < textures.size(); ++i) {
+		delete textures[i];
+	}
+
+	// Destruimos el renderer y la ventana
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+	SDL_Quit();
 }
 
 void
@@ -93,12 +110,12 @@ Game::render() const
 
 	// Renderizamos las flechas, los globos y el arco
 	for (std::size_t i = 0; i < arrowsVector.size(); ++i) {
-		arrowsVector[i].render();
+		arrowsVector[i]->render();
 	}
 	for (std::size_t i = 0; i < balloonsVector.size(); ++i){
-		balloonsVector[i].render();
+		balloonsVector[i]->render();
 	}
-	bow.render();
+	bow->render();
 
 	SDL_RenderPresent(renderer);
 }
@@ -107,7 +124,7 @@ void
 Game::update()
 {
 	// Actualizamos el arco
-	bow.update(FRAME_PERIOD);
+	bow->update(FRAME_PERIOD);
 
 	// Comprobamos si ya ha pasado suficiente tiempo desde la generación del último
 	// globo
@@ -119,17 +136,16 @@ Game::update()
 		int color =  uniform_int_distribution<int>(0, 6)(generator);
 		float speedY = uniform_real_distribution<float>(-0.05f, -0.02f)(generator);
 		float posX =  uniform_real_distribution<float>(WINDOW_WIDTH / 3, 
-			WINDOW_WIDTH - textures[BALLOON]->getFrameWidth() / 2)(generator);
+			WINDOW_WIDTH - WINDOW_WIDTH / 6.25f)(generator);
 	
 		// Creamos el rectángulo en base a todas variables calculadas
 		Rectangle balloonRect({posX, WINDOW_HEIGHT}, 
-			textures[BALLOON]->getFrameWidth() / 2,
-			textures[BALLOON]->getFrameHeight() / 2);
+			WINDOW_WIDTH / 6.25f,
+			WINDOW_HEIGHT / 4.7f);
 
 		// Con todo calculado, creamos un globo y lo incorporamos al vector de 
 		// globos
-		Balloon b(balloonRect, color, Vector2D(0.0f, speedY), textures[BALLOON]);
-		balloonsVector.push_back(b);
+		balloonsVector.push_back(new Balloon(balloonRect, color, Vector2D(0.0f, speedY), textures[BALLOON]));
 
 		// Actualizamos el valor de LastBalloonTime
 		LastBalloonTime = SDL_GetTicks();
@@ -137,38 +153,47 @@ Game::update()
 
 	// Una vez hemos generado (o no) un globo, actualizamos todos los globos
 	// del vector de globos
-	for (std::size_t i = 0; i < balloonsVector.size(); ++i) {
+	std::size_t i = 0;
+	while (i < balloonsVector.size()) {
 
 		// Si el globo se sale de los límites, lo eliminamos del vector
-		if(!(balloonsVector[i].update(FRAME_PERIOD))) {
+		if(balloonsVector[i]->update(FRAME_PERIOD)) {
+			++i;
+		}
+		else {
+			delete balloonsVector[i];
 			balloonsVector.erase(balloonsVector.begin() + i);
 		}
 	}
 
 	// Si el número de flechas ha disminuido en comparación con el anterior update,
 	// disparamos una flecha desde la posición del arco
-	if (bow.getArrows() < arrows) {
+	if (bow->getArrows() < arrows) {
 		
 		// Guardamos el rectángulo del arco para usarlo para crear el rectángulo
 		//  de la flecha
-		Rectangle bowRect = bow.getRect();
+		Rectangle bowRect = bow->getRect();
 		Rectangle arrowRect({0, 
-			bowRect.getTopLeftCorner().getY() + bowRect.getHeight() / 2},
-			textures[ARROW]->getFrameWidth() / 3,
-			textures[ARROW]->getFrameHeight() / 3);
+			bowRect.getTopLeftCorner().getY() + WINDOW_HEIGHT / 6.3f},
+			WINDOW_WIDTH / 5.95f,
+			WINDOW_HEIGHT / 21.95f);
 
 		// Creamos la flecha y la metemos en el vector de flechas
-		Arrow arrow(this, arrowRect, Vector2D<>(0.1f, 0.0f), textures[ARROW]);
-		arrowsVector.push_back(arrow);
+		arrowsVector.push_back(new Arrow(this, arrowRect, Vector2D<>(0.1f, 0.0f), textures[ARROW]));
 
 		// Actualizamos el valor de arrows al actual 
-		arrows = bow.getArrows();
+		arrows = bow->getArrows();
 	}
 
 	// Actualizamos las flechas
-	for (std::size_t i = 0; i < arrowsVector.size(); ++i) {
-		if (!(arrowsVector[i].update(FRAME_PERIOD))) {
-			arrowsVector.erase(arrowsVector.begin() + i);
+	std::size_t j = 0;
+	while (j < arrowsVector.size()) {
+		if (arrowsVector[j]->update(FRAME_PERIOD)) {
+			++j;
+		}
+		else {
+			delete arrowsVector[j];
+			arrowsVector.erase(arrowsVector.begin() + j);
 		}
 	}
 }
@@ -209,7 +234,7 @@ Game::handleEvents()
 		if (event.type == SDL_EVENT_QUIT)
 			exit = true;
 		else if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP) {
-			bow.handleEvent(event);
+			bow->handleEvent(event);
 		}
 	}
 }
@@ -220,7 +245,7 @@ Game::checkCollision(const Rectangle& rect) {
 	// Comprobamos si alguno de los globos del vector colisiona con el rectángulo
 	// recibido de la flecha
 	std::size_t i = 0;
-	while (i < balloonsVector.size() && !balloonsVector[i].hit(rect)) ++i;
+	while (i < balloonsVector.size() && !balloonsVector[i]->hit(rect)) ++i;
 	return i != balloonsVector.size();
 }
 

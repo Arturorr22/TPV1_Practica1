@@ -46,7 +46,9 @@ void Bow::handleEvent(const SDL_Event& event) {
 
     // Si se deja de pulsar una tecla, paralizamos el arco 
     else {
-        speed = Vector2D();
+        if (event.key.key == SDLK_UP || event.key.key == SDLK_DOWN) {
+            speed = Vector2D();
+        }
     }
 }
 
