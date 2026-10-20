@@ -28,8 +28,9 @@ class Bow {
 
     public:
 
-        // Constructora del arco
-        Bow(Rectangle destRect, Vector2D<> speed, int arrows, bool loaded, Texture* texture);
+        // Constructora del arco con argumentos y vacía
+        Bow(const Rectangle destRect, const Vector2D<>& speed, const int arrows, 
+            const bool loaded, Texture* texture);
         Bow();
 
         // Para manejar los eventos
@@ -39,7 +40,7 @@ class Bow {
         void render() const;
 
         // Actualiza el arco en cada ciclo de juego
-        bool update(float delta);
+        bool update(const float delta);
 
         // Método que devuelve el valor de arrows
         int getArrows() const;

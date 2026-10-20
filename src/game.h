@@ -58,32 +58,34 @@ private:
 
 	// Elemento del juego
 	// TODO: añadir atributos para los objetos del juego
-	std::vector<Arrow> arrowsvector;
+	std::vector<Arrow> arrowsVector;
 
 	// GENERACIÓN ALEATORIA DE GLOBOS {
 
 	// Generador de números pseudoaleatorios
 	std::mt19937_64 generator;
 
+	// Arco
+	Bow bow;
+
 	// Variables para gestionar el tiempo
-	uint64_t frameTime, LastBalloonTime;
+	uint64_t LastBalloonTime;
 
 	// Vector que almacena los globos generados
-	std::vector<Balloon> balloons;
+	std::vector<Balloon> balloonsVector;
 
 	// } GENERACIÓN ALEATORIA DE GLOBOS
-
-	// ARCO 
-	Bow bow;
-	// ARCO
 
 	// Número de flechas
 	int arrows = 7;
 
+	// tiempo de espera en milisegundos entre la generación de un globo y su 
+	// siguiente
+	int baldelay = 2000;
+
 public:
 	Game();
 	~Game();
-
 	
 	// Obtiene una textura por su nombre
 	Texture* getTexture(TextureName name) const;

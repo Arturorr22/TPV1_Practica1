@@ -13,9 +13,8 @@ Balloon::Balloon(Rectangle destRect, int color, Vector2D<> speed, Texture* textu
 }
 
 // Implementación del método hit de la clase Balloon
-// Detecta si hay colisión entre el rectángulo del globo
-// y el rectangulo recibido
-// En caso de que haya colisión, el globo de destruye
+// Detecta si hay colisión entre el rectángulo del globo y el rectangulo recibido
+// En caso de que haya colisión, se activa la destrucción del globo
 bool Balloon::hit(const Rectangle& obj) {
     if (rect.hasIntersection(obj)) {
         exploted = true;
@@ -24,21 +23,22 @@ bool Balloon::hit(const Rectangle& obj) {
 }
 
 // Implementación del método render
-// Renderiza la textura del globo en función de su color
+// Renderiza la textura del globo en función de su color y su animación
 void Balloon::render() const {
     if (texture != nullptr) {
-        texture->renderFrame(rect.to_sdl(), color, animation); // 0 se cambiará
+        texture->renderFrame(rect.to_sdl(), color, animation); 
     }
 }
 
 // Implementación del método update
-// Comprueba que el globo no se salga de la pantalla por el borde superior
+// Comprueba que el globo no se salga de la pantalla por el borde superior o que
+// no siga en la escena si ha completado su animación de destrucción
 bool Balloon::update(float delta) {
-    if (exploted) {
-        ++animation;
-    }
-    else {
+    if (!exploted) {
         rect.move(speed * delta); 
     }
-    return rect.getTopLeftCorner().getY() + rect.getHeight() > 0 && animation != 5;
+    else {
+        ++animation;
+    }
+    return rect.getTopLeftCorner().getY() + rect.getHeight() > 0 && animation != 6;
 }

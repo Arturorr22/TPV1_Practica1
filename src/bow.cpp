@@ -2,7 +2,8 @@
 #include "game.h"
 
 // Implementación del constructor arco
-Bow::Bow(Rectangle destRect, Vector2D<> speed, int arrows, bool loaded, Texture* texture) 
+Bow::Bow(const Rectangle destRect, const Vector2D<>& speed, const int arrows, 
+    const bool loaded, Texture* texture) 
     : rect(destRect)
     , speed(speed)
     , arrows(arrows)
@@ -11,14 +12,16 @@ Bow::Bow(Rectangle destRect, Vector2D<> speed, int arrows, bool loaded, Texture*
 {
 }
 
+// Implementación del constructor vacío del arco
 Bow::Bow() {
     Bow(Rectangle(), {0, 0}, 0, false, nullptr);
 }
 
 // Implementación del método handleEvent
-// Recibe un evento del tipo SDL_Event
+// Recibe un evento del tipo SDL_Event_KEY_DOWN o SDL_EVENT_KEY_UP
 void Bow::handleEvent(const SDL_Event& event) {
 
+    // Si se pulsa una tecla, modificamos los atributos correspondientes
     if (event.type == SDL_EVENT_KEY_DOWN) {
 
         // Comprobamos si se quiere mover, cargar o disparar el arco
@@ -40,6 +43,8 @@ void Bow::handleEvent(const SDL_Event& event) {
             }
         }
     }
+
+    // Si se deja de pulsar una tecla, paralizamos el arco 
     else {
         speed = Vector2D();
     }
@@ -48,13 +53,12 @@ void Bow::handleEvent(const SDL_Event& event) {
 // Implementación del render del arco
 void Bow::render() const {
     if (texture != nullptr) {
-        int col = (loaded ? 0 : 1);
-        texture->renderFrame(rect.to_sdl(), 0, col);
+        texture->renderFrame(rect.to_sdl(), 0, (loaded ? 0 : 1));
     }
 }
 
 // Implementación del método update del arco
-bool Bow::update(float delta) {
+bool Bow::update(const float delta) {
     
     // Si el arco no se sale de la pantalla, modificamos su posición
     if ((rect.getTopLeftCorner() + (speed * delta)).getY() >= 0 && 

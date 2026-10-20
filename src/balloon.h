@@ -3,13 +3,11 @@
 
 #include "texture.h"
 #include "rectangle.h"
-#include "vector2D.h"
 
 class Balloon {
     private:
 
-        // Rectángulo que contiene la posición y las dimensiones
-        // del globo.
+        // Rectángulo que contiene la posición y las dimensiones del globo.
         // Posición => .corner
         // Dimensiones => .width y .height 
         Rectangle rect;
@@ -24,25 +22,23 @@ class Balloon {
         // Puntero que apunta a la textura del globo
         Texture* texture;
 
-        // Variable que define si el globo debe explotar
+        // Variables para controlar la animación de explosión del globo
         bool exploted;
-
-        // Variable para la animación
         int animation;
     
     public:
 
-        // Constructora de la clase
+        // Constructor de la clase
         Balloon(Rectangle destRect, int color, Vector2D<> speed, Texture* texture);
 
-        // Método que devuelve true si detecta una colisión con
-        // otro rectángulo
+        // Método que devuelve true si detecta una colisión con otro rectángulo
         bool hit(const Rectangle& obj);
 
-        // Método que renderiza el objeto en la ventana de acuerdo a su forma y textura
+        // Método que renderiza el objeto en la ventana de acuerdo a su forma y 
+        // textura
         void render() const;
 
-        // Actualiza el globo en cada ciclo de juego
+        // Método que actualiza el globo en cada ciclo de juego
         bool update(float delta);
 
 };
