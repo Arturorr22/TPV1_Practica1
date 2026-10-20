@@ -5,19 +5,16 @@
 #include <array>
 #include <istream>
 #include <vector>
-
-// GENERACIÓN ALEATORIA DE GLOBOS
 #include <random>
-#include "balloon.h"
-// GENERACIÓN ALEATORIA DE GLOBOS
+#include <fstream>
 
-// ARCO
-#include "bow.h"
-// ARCO
 
 // Declaraciones anticipadas
 #include "rectangle.h"
 #include "vector2D.h"
+
+#include "balloon.h"
+#include "bow.h"
 
 // Declaraciones anticipadas
 class Texture;
@@ -56,34 +53,30 @@ private:
 
 	bool exit;
 
-	// Elemento del juego
-	// TODO: añadir atributos para los objetos del juego
-	std::vector<Arrow> arrowsVector;
-
-	// GENERACIÓN ALEATORIA DE GLOBOS {
-
-	// Generador de números pseudoaleatorios
-	std::mt19937_64 generator;
-
-	// Arco
-	Bow bow;
-
-	// Variables para gestionar el tiempo
-	uint64_t LastBalloonTime;
-
-	// Vector que almacena los globos generados
-	std::vector<Balloon> balloonsVector;
-
-	// } GENERACIÓN ALEATORIA DE GLOBOS
-
 	// Número de flechas
 	int arrows = 7;
 
 	// tiempo de espera en milisegundos entre la generación de un globo y su 
 	// siguiente
 	int baldelay = 2000;
+	
+	// Arco
+	Bow bow;
+	
+	// Generador de números pseudoaleatorios
+	std::mt19937_64 generator;
+	
+	// Variables para gestionar el tiempo
+	uint64_t LastBalloonTime;
+	
+	// Vector que almacena los globos generados
+	std::vector<Balloon> balloonsVector;
+	
+	// Elementos del juego
+	std::vector<Arrow> arrowsVector;
 
 public:
+
 	Game();
 	~Game();
 	
@@ -95,6 +88,9 @@ public:
 
 	// Comprueba si hay algún objeto colocado en ese rectángulo
 	bool checkCollision(const Rectangle& rect);
+
+	// Método que lee de un archivo de entrada los datos de baldelay, arrows, etc...
+	void LoadGame(std::ifstream& archivo);
 };
 
 inline Texture*

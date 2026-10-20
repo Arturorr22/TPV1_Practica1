@@ -63,9 +63,14 @@ Game::Game()
 	// SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
 	// TODO: crear los objetos del juego
+
+	// Cargamos el nivel deseado
+	ifstream nivel("1.txt");
+	LoadGame(nivel);
+	nivel.close();
 	
 	// Creamos el arco
-	Rectangle bowRect = Rectangle({0, (float)(WINDOW_HEIGHT / 2 - textures[BOW]->getFrameHeight() / 2)}, 
+	Rectangle bowRect({0, (float)(WINDOW_HEIGHT / 2 - textures[BOW]->getFrameHeight() / 2)}, 
 		textures[BOW]->getFrameHeight() / 2, textures[BOW]->getFrameWidth() / 2);
 	bow = Bow(bowRect, {0, 0}, arrows, false, textures[BOW]);
 	
@@ -117,13 +122,13 @@ Game::update()
 			WINDOW_WIDTH - textures[BALLOON]->getFrameWidth() / 2)(generator);
 	
 		// Creamos el rectángulo en base a todas variables calculadas
-		Rectangle balloonRect = Rectangle({posX, WINDOW_HEIGHT}, 
+		Rectangle balloonRect({posX, WINDOW_HEIGHT}, 
 			textures[BALLOON]->getFrameWidth() / 2,
 			textures[BALLOON]->getFrameHeight() / 2);
 
 		// Con todo calculado, creamos un globo y lo incorporamos al vector de 
 		// globos
-		Balloon b = Balloon(balloonRect, color, Vector2D(0.0f, speedY), textures[BALLOON]);
+		Balloon b(balloonRect, color, Vector2D(0.0f, speedY), textures[BALLOON]);
 		balloonsVector.push_back(b);
 
 		// Actualizamos el valor de LastBalloonTime
@@ -153,7 +158,7 @@ Game::update()
 			textures[ARROW]->getFrameHeight() / 3);
 
 		// Creamos la flecha y la metemos en el vector de flechas
-		Arrow arrow = Arrow(this, arrowRect, Vector2D<>(0.1f, 0.0f), textures[ARROW]);
+		Arrow arrow(this, arrowRect, Vector2D<>(0.1f, 0.0f), textures[ARROW]);
 		arrowsVector.push_back(arrow);
 
 		// Actualizamos el valor de arrows al actual 
@@ -206,7 +211,6 @@ Game::handleEvents()
 		else if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP) {
 			bow.handleEvent(event);
 		}
-		// TODO
 	}
 }
 
@@ -218,4 +222,10 @@ Game::checkCollision(const Rectangle& rect) {
 	std::size_t i = 0;
 	while (i < balloonsVector.size() && !balloonsVector[i].hit(rect)) ++i;
 	return i != balloonsVector.size();
+}
+
+// Implementación del método LoadGame
+void
+Game::LoadGame(std::ifstream& archivo) {
+	
 }
