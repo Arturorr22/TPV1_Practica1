@@ -252,5 +252,36 @@ Game::checkCollision(const Rectangle& rect) {
 // Implementación del método LoadGame
 void
 Game::LoadGame(std::ifstream& archivo) {
-	
+	string keyword;
+	int temp;
+
+	while (archivo >> keyword) { // Leer palabra de comentarios
+		if (keyword == "arrows") {
+			archivo >> temp;
+			if (archivo.fail() || temp < 0) {
+				throw "No se pudo leer un numero valido para arrows: "s + keyword ;
+			}
+			else arrows = temp;
+		}
+		else if (keyword == "baldelay") {
+			archivo >> temp;
+			if (archivo.fail() || temp < 0) {
+				throw "No se pudo leer un numero valido para baldelay: "s + keyword;
+			}
+			else baldelay = temp;
+		}
+		else {
+			archivo.ignore(1000, '\n');
+		}
+	}
 }
+
+/* else if (keyword == "bgcolor") {
+	// Leer el color de fondo (no se utiliza en este ejemplo)
+	int r, g, b;
+	archivo >> r >> g >> b;
+	}
+else if (line == "balpoints") {
+}
+else if (line == "goal") {
+} */
