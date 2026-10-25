@@ -50,15 +50,16 @@ private:
 	void render() const;
 	void update();
 	void handleEvents();
-
+	
+	
 	bool exit;
 
 	// Número de flechas
-	int arrows = 7;
-
+	int arrows = 1;
+	
 	// tiempo de espera en milisegundos entre la generación de un globo y su 
 	// siguiente
-	int baldelay = 2000;
+	int baldelay = 500;
 	
 	// Arco
 	Bow* bow;
@@ -74,7 +75,12 @@ private:
 	
 	// Elementos del juego
 	std::vector<Arrow*> arrowsVector;
+	
+	// Método que lee de un archivo de entrada los datos de baldelay, arrows, etc...
+	void LoadGame(std::ifstream& file);
 
+	void createBalloon();
+	void createArrow();
 public:
 
 	Game();
@@ -89,8 +95,6 @@ public:
 	// Comprueba si hay algún objeto colocado en ese rectángulo
 	bool checkCollision(const Rectangle& rect);
 
-	// Método que lee de un archivo de entrada los datos de baldelay, arrows, etc...
-	void LoadGame(std::ifstream& archivo);
 };
 
 inline Texture*

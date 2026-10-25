@@ -12,11 +12,6 @@ Bow::Bow(const Rectangle destRect, const Vector2D<>& speed, const int arrows,
 {
 }
 
-// Implementación del constructor vacío del arco
-Bow::Bow() {
-    Bow(Rectangle(), {0, 0}, 0, false, nullptr);
-}
-
 // Implementación del método handleEvent
 // Recibe un evento del tipo SDL_Event_KEY_DOWN o SDL_EVENT_KEY_UP
 void Bow::handleEvent(const SDL_Event& event) {

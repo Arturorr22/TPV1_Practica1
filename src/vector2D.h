@@ -21,21 +21,21 @@ public:
 	T getY() const { return y; }
 
 	// Operadores
-	Vector2D operator+(const Vector2D& otro) const {
-		return {x + otro.x, y + otro.y};
+	Vector2D operator+(const Vector2D& other) const {
+		return {x + other.x, y + other.y};
 	}
-	Vector2D operator-(const Vector2D& otro) const {
-		return {x - otro.x, y - otro.y};
+	Vector2D operator-(const Vector2D& other) const {
+		return {x - other.x, y - other.y};
 	}
-	T operator*(const Vector2D& otro) const {
-		return x * otro.x + y * otro.y;
+	T operator*(const Vector2D& other) const {
+		return x * other.x + y * other.y;
 	}
-	Vector2D operator*(const T& escalar) const {
-		return {escalar * x, escalar * y};
+	Vector2D operator*(const T& scalar) const {
+		return {scalar * x, scalar * y};
 	}
-	Vector2D& operator+=(const Vector2D& otro) {
-		x += otro.x;
-		y += otro.y;
+	Vector2D& operator+=(const Vector2D& other) {
+		x += other.x;
+		y += other.y;
 		return *this;
 	}
 

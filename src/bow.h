@@ -31,7 +31,6 @@ class Bow {
         // Constructora del arco con argumentos y vacía
         Bow(const Rectangle destRect, const Vector2D<>& speed, const int arrows, 
             const bool loaded, Texture* texture);
-        Bow();
 
         // Para manejar los eventos
         void handleEvent(const SDL_Event& event);

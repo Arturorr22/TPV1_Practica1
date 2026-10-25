@@ -23,8 +23,8 @@ class Balloon {
         Texture* texture;
 
         // Variables para controlar la animación de explosión del globo
-        bool exploted;
-        int animation;
+        bool exploded;
+        int animationFrame;
     
     public:
 

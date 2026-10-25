@@ -7,11 +7,17 @@
 
 #include "game.h"
 
+using namespace std;
+
 int main(int argc, char* argv[])
 {
-	Game().run();
-
-	// TODO: manejar excepcionesç
+	try {
+		Game().run();
+	}
+	catch (const string& errorMessage) {
+		cout << errorMessage << "\n";
+	}
+	// TODO: manejar excepciones
 
 	return 0;
 }
