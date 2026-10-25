@@ -2,7 +2,7 @@
 
 // Implementación del constructor de la clase Balloon
 // Inicializa todos sus atributos en base a los argumentos recibidos
-Balloon::Balloon(Rectangle destRect, int color, Vector2D<> speed, Texture* texture) 
+Balloon::Balloon(const Rectangle destRect, const int color, const Vector2D<>& speed, Texture* texture) 
     : rect(destRect)
     , color(color)
     , speed(speed)
@@ -33,7 +33,7 @@ void Balloon::render() const {
 // Implementación del método update
 // Comprueba que el globo no se salga de la pantalla por el borde superior o que
 // no siga en la escena si ha completado su animación de destrucción
-bool Balloon::update(float delta) {
+bool Balloon::update(const float delta) {
     if (!exploded) {
         rect.move(speed * delta); 
     }

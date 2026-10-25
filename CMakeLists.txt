@@ -69,4 +69,5 @@ add_executable(ProyectoSDL
 	src/balloon.cpp
 	src/bow.cpp
 	src/arrow.cpp
+	src/infobar.cpp
 )

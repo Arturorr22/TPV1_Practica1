@@ -2,7 +2,7 @@
 #include "game.h"
 
 // Crea un objeto Arrow con el rectángulo de destino, la velocidad y la textura proporcionados
-Arrow::Arrow(Game* game, Rectangle destRect, const Vector2D<>& speed, Texture* texture)
+Arrow::Arrow(Game* game, const Rectangle destRect, const Vector2D<>& speed, Texture* texture)
 	: game(game), rect(destRect), speed(speed), texture(texture) {
 }
 
@@ -12,7 +12,7 @@ void Arrow::render() const {
 }
 
 // Implementa la lógica de actualización de la flecha
-bool Arrow::update(float delta) {
+bool Arrow::update(const float delta) {
 
 	// Actualiza la posición de la flecha según su velocidad y el tiempo transcurrido
 	rect.move(speed * delta);

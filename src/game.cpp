@@ -79,6 +79,10 @@ Game::Game()
 	// Creamos el arco
 	bow = new Bow(Rectangle({0, (float)(WINDOW_HEIGHT / 2 - WINDOW_HEIGHT / 3.15f)}, 
 		WINDOW_HEIGHT / 3.15f, WINDOW_WIDTH / 4), {0, 0}, arrows, false, textures[BOW]);
+
+	// Creamos la infoBar
+	infoBar = new InfoBar(Rectangle({0, 0}, WINDOW_WIDTH / (5.95f * 2), 
+		WINDOW_HEIGHT / (21.95f * 2)), arrows, textures[ARROW]);
 	
 	// Configuramos la semilla del generador para la generación de globos
 	generator.seed(std::random_device()());
@@ -95,6 +99,8 @@ Game::~Game()
 	for (std::size_t k = 0; k < arrowsVector.size(); ++k)
 		delete arrowsVector[k];
 	delete bow;
+
+	delete infoBar;
 
 	// Destruimos las texturas
 	for (std::size_t i = 0; i < textures.size(); ++i)
@@ -119,6 +125,7 @@ Game::render() const
 		balloonsVector[i]->render();
 	}
 	bow->render();
+	infoBar->render();
 
 	SDL_RenderPresent(renderer);
 }
@@ -153,8 +160,7 @@ Game::createArrow() {
 	// Guardamos el rectángulo del arco para usarlo para crear el rectángulo
 	//  de la flecha
 	Rectangle bowRect = bow->getRect();
-	Rectangle arrowRect({0, 
-		bowRect.getTopLeftCorner().getY() + WINDOW_HEIGHT / 6.3f},
+	Rectangle arrowRect({0, bowRect.getTopLeftCorner().getY() + WINDOW_HEIGHT / 6.3f},
 		WINDOW_WIDTH / 5.95f,
 		WINDOW_HEIGHT / 21.95f);
 		
@@ -192,8 +198,10 @@ Game::update()
 
 	// Si el número de flechas ha disminuido en comparación con el anterior update,
 	// disparamos una flecha desde la posición del arco
-	if (bow->getArrows() < arrows) 
+	if (bow->getArrows() < arrows) {
+		infoBar->decrementArrows();
 		createArrow();
+	}
 
 	// Actualizamos las flechas
 	std::size_t j = 0;

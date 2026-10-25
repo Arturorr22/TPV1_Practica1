@@ -29,7 +29,7 @@ class Balloon {
     public:
 
         // Constructor de la clase
-        Balloon(Rectangle destRect, int color, Vector2D<> speed, Texture* texture);
+        Balloon(const Rectangle destRect, const int color, const Vector2D<>& speed, Texture* texture);
 
         // Método que devuelve true si detecta una colisión con otro rectángulo
         bool hit(const Rectangle& obj);
@@ -39,7 +39,7 @@ class Balloon {
         void render() const;
 
         // Método que actualiza el globo en cada ciclo de juego
-        bool update(float delta);
+        bool update(const float delta);
 
 };
 

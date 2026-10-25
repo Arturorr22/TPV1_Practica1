@@ -18,13 +18,13 @@ class Arrow {
 	public:
 
 		// Constructor que inicializa la flecha con el juego, el rectángulo de destino, la velocidad y la textura
-		Arrow(Game* game, Rectangle destRect, const Vector2D<>& speed, Texture* texture);
+		Arrow(Game* game, const Rectangle destRect, const Vector2D<>& speed, Texture* texture);
 		
 		// Renderiza la flecha en la pantalla
 		void render() const;
 		
 		// Actualiza la posición de la flecha y devuelve true si sigue activa, false si ha salido de la pantalla
-		bool update(float delta); //La velocidad es en pixeles*milisegundos
+		bool update(const float delta); //La velocidad es en pixeles*milisegundos
 };
 
 #endif // ARROW_H

@@ -15,6 +15,7 @@
 
 #include "balloon.h"
 #include "bow.h"
+#include "infobar.h"
 
 // Declaraciones anticipadas
 class Texture;
@@ -51,7 +52,6 @@ private:
 	void update();
 	void handleEvents();
 	
-	
 	bool exit;
 
 	// Número de flechas
@@ -63,6 +63,9 @@ private:
 	
 	// Arco
 	Bow* bow;
+
+	// InfoBar
+	InfoBar* infoBar; 
 	
 	// Generador de números pseudoaleatorios
 	std::mt19937_64 generator;
