@@ -74,3 +74,8 @@ int Bow::getArrows() const {
 Rectangle Bow::getRect() const {
     return rect;
 }
+
+// Implementación del método updateArrows de InfoBar
+void Bow::updateArrows(const int newArrowsValue) {
+    arrows = newArrowsValue;
+}

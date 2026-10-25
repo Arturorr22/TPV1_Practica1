@@ -22,3 +22,8 @@ void InfoBar::render() const {
         }
     }
 }
+
+// Implementación del método updateArrows de InfoBar
+void InfoBar::updateArrows(const int newArrowsValue) {
+    arrows = newArrowsValue;
+}

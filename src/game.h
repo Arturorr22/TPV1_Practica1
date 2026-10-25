@@ -54,6 +54,8 @@ private:
 	
 	bool exit;
 
+	int levelToLoad = 1;
+
 	// Número de flechas
 	int arrows = 1;
 	

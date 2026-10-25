@@ -28,6 +28,9 @@ class InfoBar {
 
         // Renderiza la infoBar en la pantalla
 		void render() const;
+
+        // Método que actualiza el número de flechas de la InfoBar
+        void updateArrows(const int newArrowsValue);
 };
 
 #endif

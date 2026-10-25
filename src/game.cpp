@@ -54,12 +54,13 @@ Game::Game()
 			textures[i] = new Texture(renderer, (imgRoot + name).c_str(), nrows, ncols);
 		}
 
-		ifstream levelFile((levelRoot + "1.txt").c_str());
+		ifstream levelFile((levelRoot + to_string(levelToLoad) + ".txt").c_str());
 		if (!levelFile.is_open())
 			throw "Fichero del nivel no encontrado"s;
 		else {
 			LoadGame(levelFile);
 			levelFile.close();
+			++levelToLoad;
 		}
 	}
 	catch (const string&) {
@@ -248,7 +249,21 @@ Game::run()
 			SDL_Delay(FRAME_PERIOD - (frameEnd - frameStart));
 		}
 
-		if ((arrows == 0 && arrowsVector.empty()) || playerPoints >= goal) exit = true;
+		if ((arrows == 0 && arrowsVector.empty())) exit = true;
+
+		if (playerPoints >= goal) {
+			string levelRoot = LEVEL_ROOT;
+			ifstream levelFile((levelRoot + to_string(levelToLoad) + ".txt").c_str());
+			if (!levelFile.is_open())
+				throw "Fichero del nivel no encontrado"s;
+			else {
+				LoadGame(levelFile);
+				levelFile.close();
+				infoBar->updateArrows(arrows);
+				bow->updateArrows(arrows);
+				++levelToLoad;
+			}
+		}
 	}
 }
 
@@ -282,6 +297,7 @@ void
 Game::LoadGame(std::ifstream& file) {
 	string keyword;
 	int temp;
+	goal = 1000;
 
 	while (file >> keyword) { // Leer palabra de comentarios
 		if (keyword == "arrows") {

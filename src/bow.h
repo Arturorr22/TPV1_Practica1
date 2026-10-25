@@ -47,6 +47,8 @@ class Bow {
         // Método que devuelve el rectángulo del arco
         Rectangle getRect() const;
     
+        // Método que actualiza el número de flechas del arco
+        void updateArrows(const int newArrowsValue);
 };
 
 #endif
