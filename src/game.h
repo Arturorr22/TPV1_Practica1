@@ -60,6 +60,14 @@ private:
 	// tiempo de espera en milisegundos entre la generación de un globo y su 
 	// siguiente
 	int baldelay = 500;
+
+	// Meta de puntos, puntos por globo y color de fondo
+	int goal = 100;
+	int balPoints = 10;
+	int playerPoints = 0;
+
+	struct Color { int r, g, b; };
+	Color backgroundColor;
 	
 	// Arco
 	Bow* bow;
@@ -99,6 +107,9 @@ public:
 	// Comprueba si hay algún objeto colocado en ese rectángulo
 	bool checkCollision(const Rectangle& rect);
 
+	// Método que aumenta el total de puntos del jugador respecto a los puntos que suelta 
+	// cada globo
+	void increasePoints();
 };
 
 inline Texture*

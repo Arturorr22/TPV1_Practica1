@@ -21,7 +21,9 @@ bool Arrow::update(const float delta) {
 	Rectangle r = Rectangle({rect.getTopLeftCorner().getX() + (rect.getWidth() * 2 / 3), 
 							rect.getTopLeftCorner().getY() + (rect.getHeight() * 1 / 3)}, 
 							rect.getWidth() / 4, rect.getHeight() / 2);
-	game->checkCollision(r);
+	if (game->checkCollision(r)) {
+		game->increasePoints();
+	}
 
 	// Comprueba si la flecha ha salido de la pantalla mirando si la esquina superior 
 	// izquierda del rectángulo está fuera de los límites de la ventana

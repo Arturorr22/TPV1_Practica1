@@ -118,6 +118,9 @@ Game::~Game()
 void
 Game::render() const
 {
+	SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.g, 
+		backgroundColor.b, 255); 
+
 	SDL_RenderClear(renderer);
 
 	// Renderizamos las flechas, los globos y el arco
@@ -245,7 +248,7 @@ Game::run()
 			SDL_Delay(FRAME_PERIOD - (frameEnd - frameStart));
 		}
 
-		if (arrows == 0 && arrowsVector.empty()) exit = true;
+		if ((arrows == 0 && arrowsVector.empty()) || playerPoints >= goal) exit = true;
 	}
 }
 
@@ -293,18 +296,38 @@ Game::LoadGame(std::ifstream& file) {
 			}
 			else baldelay = temp;
 		}
+		else if (keyword == "bgcolor") {
+			if (!(file >> temp) || temp < 0) {
+				throw "No se pudo leer un numero valido para bgcolor"s;
+			}
+			backgroundColor.r = temp;
+			if (!(file >> temp) || temp < 0) {
+				throw "No se pudo leer un numero valido para bgcolor"s;
+			}
+			backgroundColor.g = temp;
+			if (!(file >> temp) || temp < 0) {
+				throw "No se pudo leer un numero valido para bgcolor"s;
+			}
+			backgroundColor.b = temp;
+		}
+		else if (keyword == "balpoints") {
+			if (!(file >> temp) || temp < 0) {
+				throw "No se pudo leer un numero valido para balpoints"s;
+			}
+			balPoints = temp;
+		}
+		else if (keyword == "goal") {
+			if (!(file >> temp) || temp < 0) {
+				throw "No se pudo leer un numero valido para bgcolor"s;
+			}
+			goal = temp;
+		}
 		else {
 			file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		}
 	}
+	playerPoints = 0;
 }
 
-/* else if (keyword == "bgcolor") {
-	// Leer el color de fondo (no se utiliza en este ejemplo)
-	int r, g, b;
-	file >> r >> g >> b;
-	}
-else if (line == "balpoints") {
-}
-else if (line == "goal") {
-} */
+// Implementación del método increasePoints
+void Game::increasePoints() { playerPoints += balPoints; }

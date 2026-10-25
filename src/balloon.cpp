@@ -16,10 +16,14 @@ Balloon::Balloon(const Rectangle destRect, const int color, const Vector2D<>& sp
 // Detecta si hay colisión entre el rectángulo del globo y el rectangulo recibido
 // En caso de que haya colisión, se activa la destrucción del globo
 bool Balloon::hit(const Rectangle& obj) {
+    if (exploded) 
+        return false;
+        
     if (rect.hasIntersection(obj)) {
         exploded = true;
+        return true;
     }
-    return exploded;
+    return false;
 }
 
 // Implementación del método render
