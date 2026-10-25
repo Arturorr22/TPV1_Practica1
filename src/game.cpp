@@ -86,6 +86,9 @@ Game::Game()
 	
 	// Configuramos la semilla del generador para la generación de globos
 	generator.seed(std::random_device()());
+
+	// Calculamos el tiempo que ha de pasar hasta que aparezca el primer globo
+	nextBalloon = exponential_distribution<double>(1.0f / baldelay)(generator);
 	
 	// Almacenamos el tiempo actual al iniciar el programa en la variable LastBalloonTime
 	LastBalloonTime = SDL_GetTicks();
@@ -150,6 +153,9 @@ Game::createBalloon() {
 	// globos
 	balloonsVector.push_back(new Balloon(balloonRect, color, Vector2D(0.0f, speedY), textures[BALLOON]));
 	
+	// Recalculamos el valor hasta el siguiente globo
+	nextBalloon = exponential_distribution<double>(1.0f / baldelay)(generator);
+
 	// Actualizamos el valor de LastBalloonTime
 	LastBalloonTime = SDL_GetTicks();
 }
@@ -179,7 +185,7 @@ Game::update()
 
 	// Comprobamos si ya ha pasado suficiente tiempo desde la generación del último
 	// globo
-	if (SDL_GetTicks() - LastBalloonTime > baldelay) 
+	if (SDL_GetTicks() - LastBalloonTime > nextBalloon)
 		createBalloon();
 
 	// Una vez hemos generado (o no) un globo, actualizamos todos los globos

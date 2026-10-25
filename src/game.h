@@ -72,6 +72,7 @@ private:
 	
 	// Variables para gestionar el tiempo
 	uint64_t LastBalloonTime;
+	uint64_t nextBalloon;
 	
 	// Vector que almacena los globos generados
 	std::vector<Balloon*> balloonsVector;
