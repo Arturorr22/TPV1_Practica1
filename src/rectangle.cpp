@@ -31,12 +31,10 @@ intervalOverlaps(scalar_t x1, scalar_t w1, scalar_t x2, scalar_t w2)
 //
 
 Rectangle::Rectangle(Point2D<> topleft, scalar_t width, scalar_t height)
-  : corner(topleft)
-  , width(width)
-  , height(height)
+	: corner(topleft)
+	, width(max(0.f, width))
+	, height(max(0.f, height))
 {
-	assert(width >= 0);
-	assert(height >= 0);
 }
 
 Rectangle::Rectangle()

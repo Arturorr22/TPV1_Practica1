@@ -4,9 +4,8 @@
 #include <iostream>
 #include <cmath>
 
-/**
- * Vector bidimensional genérico.
- */
+// Vector bidimensional genérico.
+
 template<std::floating_point T = float>
 class Vector2D
 {

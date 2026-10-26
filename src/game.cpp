@@ -8,15 +8,42 @@
 #include <limits>
 #include <fstream>
 
-// GENERACIÓN ALEATORIA DE GLOBOS
-// GENERACIÓN ALEATORIA DE GLOBOS
-
 using namespace std;
 
 // Constantes
 constexpr const char* const WINDOW_TITLE = "Bow & Arrow 1.0";
 constexpr const char* IMAGE_ROOT = "../assets/images/";
 constexpr const char* LEVEL_ROOT = "../assets/levels/";
+
+// Carga de niveles
+constexpr int DEFAULT_GOAL = 1000;
+constexpr int MIN_ARROWS = 1;
+constexpr int MIN_BALDELAY = 500;
+
+// Render
+constexpr Uint8 OPAQUE_ALPHA = 255;
+
+// Globos
+constexpr int NUM_BALLOON_COLORS = 7; // filas de balloons.png
+constexpr float MIN_BALLOON_SPEED = -0.05f;
+constexpr float MAX_BALLOON_SPEED = -0.02f;
+constexpr float BALLOON_MIN_X_DIV = 3.0f; // posX mínima = WINDOW_WIDTH / 3
+constexpr float BALLOON_WIDTH_DIV = 6.25f;
+constexpr float BALLOON_HEIGHT_DIV = 4.7f;
+constexpr float BALLOONS_PER_DELAY = 1.0f; // Número medio de globos por cada baldelay milisegundos (tasa = BALLOONS_PER_DELAY / baldelay)
+
+// Arco
+constexpr float BOW_SIZE_DIV = 3.15f;
+constexpr float BOW_WIDTH_DIV = 4.0f;
+
+// Flecha
+constexpr float ARROW_WIDTH_DIV = 5.95f;
+constexpr float ARROW_HEIGHT_DIV = 21.95f;
+constexpr float ARROW_OFFSET_DIV = 6.3f;
+constexpr float ARROW_SPEED = 0.1f;
+
+// InfoBar (mitad del tamaño de la flecha)
+constexpr float INFOBAR_SCALE = 2.0f;
 
 // Estructura para especificar las texturas que hay que
 // cargar y el tamaño de su matriz de frames
@@ -27,14 +54,26 @@ struct TextureSpec
 	int ncols = 1;
 };
 
-constexpr array<TextureSpec, Game::NUM_TEXTURES> textureList {
+constexpr array<TextureSpec, Game::NUM_TEXTURES> textureList{
 	TextureSpec{"balloons.png", 7, 6},
-	{"arrow.png"},  
+	{"arrow.png"},
 	{"bow.png", 1, 2},
 };
 
+namespace {
+
+	// Lee un entero del fichero y comprueba que no sea menor que minValue.
+	// Si no es válido, lanza una excepción con el nombre de la palabra clave
+	int readValue(std::ifstream& file, const string& name, int minValue) {
+		int value;
+		if (!(file >> value) || value < minValue)
+			throw "No se pudo leer un numero valido para "s + name;
+		return value;
+	}
+}
+
 Game::Game()
-  : exit(false)
+	: exit(false)
 {
 	// Carga SDL y crea la ventana con su renderizador
 	if (!SDL_Init(SDL_INIT_VIDEO))
@@ -48,7 +87,7 @@ Game::Game()
 		textures.fill(nullptr);
 		string imgRoot = IMAGE_ROOT;
 		string levelRoot = LEVEL_ROOT;
-		
+
 		for (size_t i = 0; i < textures.size(); i++) {
 			auto [name, nrows, ncols] = textureList[i];
 			textures[i] = new Texture(renderer, (imgRoot + name).c_str(), nrows, ncols);
@@ -72,25 +111,20 @@ Game::Game()
 		throw; // relanza la excepción
 	}
 
-	// Configura que se pueden utilizar capas translúcidas
-	// SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-
-	// TODO: crear los objetos del juego
-	
 	// Creamos el arco
-	bow = new Bow(Rectangle({0, (float)(WINDOW_HEIGHT / 2 - WINDOW_HEIGHT / 3.15f)}, 
-		WINDOW_HEIGHT / 3.15f, WINDOW_WIDTH / 4), {0, 0}, arrows, false, textures[BOW]);
+	bow = new Bow(Rectangle({ 0, (float)(WINDOW_HEIGHT / 2 - WINDOW_HEIGHT / BOW_SIZE_DIV) },
+		WINDOW_HEIGHT / BOW_SIZE_DIV, WINDOW_WIDTH / BOW_WIDTH_DIV), { 0, 0 }, arrows, false, textures[BOW]);
 
 	// Creamos la infoBar
-	infoBar = new InfoBar(Rectangle({0, 0}, WINDOW_WIDTH / (5.95f * 2), 
-		WINDOW_HEIGHT / (21.95f * 2)), arrows, textures[ARROW]);
-	
+	infoBar = new InfoBar(Rectangle({ 0, 0 }, WINDOW_WIDTH / (ARROW_WIDTH_DIV * INFOBAR_SCALE),
+		WINDOW_HEIGHT / (ARROW_HEIGHT_DIV * INFOBAR_SCALE)), arrows, textures[ARROW]);
+
 	// Configuramos la semilla del generador para la generación de globos
 	generator.seed(std::random_device()());
 
 	// Calculamos el tiempo que ha de pasar hasta que aparezca el primer globo
-	nextBalloon = exponential_distribution<double>(1.0f / baldelay)(generator);
-	
+	nextBalloon = exponential_distribution<double>(BALLOONS_PER_DELAY / baldelay)(generator);
+
 	// Almacenamos el tiempo actual al iniciar el programa en la variable LastBalloonTime
 	LastBalloonTime = SDL_GetTicks();
 }
@@ -119,8 +153,8 @@ Game::~Game()
 void
 Game::render() const
 {
-	SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.g, 
-		backgroundColor.b, 255); 
+	SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.g,
+		backgroundColor.b, OPAQUE_ALPHA);
 
 	SDL_RenderClear(renderer);
 
@@ -128,7 +162,7 @@ Game::render() const
 	for (std::size_t i = 0; i < arrowsVector.size(); ++i) {
 		arrowsVector[i]->render();
 	}
-	for (std::size_t i = 0; i < balloonsVector.size(); ++i){
+	for (std::size_t i = 0; i < balloonsVector.size(); ++i) {
 		balloonsVector[i]->render();
 	}
 	bow->render();
@@ -143,22 +177,23 @@ Game::createBalloon() {
 	// Calculamos, de manera pseudoaleatoria, la posición del borde inferior 
 	// en la que aparecerá el globo, junto con su color y su velocidad en el 
 	// eje y
-	int color =  uniform_int_distribution<int>(0, 6)(generator);
-	float speedY = uniform_real_distribution<float>(-0.05f, -0.02f)(generator);
-	float posX =  uniform_real_distribution<float>(WINDOW_WIDTH / 3, 
-		WINDOW_WIDTH - WINDOW_WIDTH / 6.25f)(generator);
+	int color = uniform_int_distribution<int>(0, NUM_BALLOON_COLORS - 1)(generator);
+	float speedY = uniform_real_distribution<float>(MIN_BALLOON_SPEED,
+		MAX_BALLOON_SPEED)(generator);
+	float posX = uniform_real_distribution<float>(WINDOW_WIDTH / BALLOON_MIN_X_DIV,
+		WINDOW_WIDTH - WINDOW_WIDTH / BALLOON_WIDTH_DIV)(generator);
 
 	// Creamos el rectángulo en base a todas variables calculadas
-	Rectangle balloonRect({posX, WINDOW_HEIGHT}, 
-		WINDOW_WIDTH / 6.25f,
-		WINDOW_HEIGHT / 4.7f);
+	Rectangle balloonRect({ posX, WINDOW_HEIGHT },
+		WINDOW_WIDTH / BALLOON_WIDTH_DIV,
+		WINDOW_HEIGHT / BALLOON_HEIGHT_DIV);
 
 	// Con todo calculado, creamos un globo y lo incorporamos al vector de 
 	// globos
-	balloonsVector.push_back(new Balloon(balloonRect, color, Vector2D(0.0f, speedY), textures[BALLOON]));
-	
+	balloonsVector.push_back(new Balloon(balloonRect, color, Vector2D<>(0, speedY), textures[BALLOON]));
+
 	// Recalculamos el valor hasta el siguiente globo
-	nextBalloon = exponential_distribution<double>(1.0f / baldelay)(generator);
+	nextBalloon = exponential_distribution<double>(BALLOONS_PER_DELAY / baldelay)(generator);
 
 	// Actualizamos el valor de LastBalloonTime
 	LastBalloonTime = SDL_GetTicks();
@@ -168,43 +203,60 @@ void
 Game::createArrow() {
 
 	// Guardamos el rectángulo del arco para usarlo para crear el rectángulo
-	//  de la flecha
+	// de la flecha
 	Rectangle bowRect = bow->getRect();
-	Rectangle arrowRect({0, bowRect.getTopLeftCorner().getY() + WINDOW_HEIGHT / 6.3f},
-		WINDOW_WIDTH / 5.95f,
-		WINDOW_HEIGHT / 21.95f);
-		
-		// Creamos la flecha y la metemos en el vector de flechas
-		arrowsVector.push_back(new Arrow(this, arrowRect, Vector2D<>(0.1f, 0.0f), textures[ARROW]));
-		
-		// Actualizamos el valor de arrows al actual 
-		arrows = bow->getArrows();
+	Rectangle arrowRect({ 0, bowRect.getTopLeftCorner().getY() + WINDOW_HEIGHT / ARROW_OFFSET_DIV },
+		WINDOW_WIDTH / ARROW_WIDTH_DIV,
+		WINDOW_HEIGHT / ARROW_HEIGHT_DIV);
+
+	// Creamos la flecha y la metemos en el vector de flechas
+	arrowsVector.push_back(new Arrow(this, arrowRect, Vector2D<>(ARROW_SPEED, 0), textures[ARROW]));
+
+	// Actualizamos el valor de arrows al actual 
+	arrows = bow->getArrows();
+}
+
+void
+Game::updateBalloons()
+{
+	// Actualizamos todos los globos del vector de globos
+	std::size_t i = 0;
+	while (i < balloonsVector.size()) {
+		// Si el globo se sale de los límites, lo eliminamos del vector
+		if (balloonsVector[i]->update(FRAME_PERIOD)) ++i;
+		else {
+			delete balloonsVector[i];
+			balloonsVector.erase(balloonsVector.begin() + i);
+		}
 	}
-	
+}
+
+void
+Game::updateArrows()
+{
+	// Actualizamos todas las flechas del vector de flechas
+	std::size_t j = 0;
+	while (j < arrowsVector.size()) {
+		// Si la flecha sale de la pantalla, la eliminamos del vector
+		if (arrowsVector[j]->update(FRAME_PERIOD)) ++j;
+		else {
+			delete arrowsVector[j];
+			arrowsVector.erase(arrowsVector.begin() + j);
+		}
+	}
+}
+
 void
 Game::update()
 {
 	// Actualizamos el arco
 	bow->update(FRAME_PERIOD);
 
-	// Comprobamos si ya ha pasado suficiente tiempo desde la generación del último
-	// globo
-	if (SDL_GetTicks() - LastBalloonTime > nextBalloon)
-		createBalloon();
+	// Comprobamos si ya ha pasado suficiente tiempo desde la generación del último globo
+	if (SDL_GetTicks() - LastBalloonTime > nextBalloon) createBalloon();
 
-	// Una vez hemos generado (o no) un globo, actualizamos todos los globos
-	// del vector de globos
-	std::size_t i = 0;
-	while (i < balloonsVector.size()) {
-
-		// Si el globo se sale de los límites, lo eliminamos del vector
-		if(balloonsVector[i]->update(FRAME_PERIOD))
-			++i;
-		else {
-			delete balloonsVector[i];
-			balloonsVector.erase(balloonsVector.begin() + i);
-		}
-	}
+	// Una vez hemos generado (o no) un globo, actualizamos los globos
+	updateBalloons();
 
 	// Si el número de flechas ha disminuido en comparación con el anterior update,
 	// disparamos una flecha desde la posición del arco
@@ -214,34 +266,26 @@ Game::update()
 	}
 
 	// Actualizamos las flechas
-	std::size_t j = 0;
-	while (j < arrowsVector.size()) {
-		if (arrowsVector[j]->update(FRAME_PERIOD))
-			++j;
-		else {
-			delete arrowsVector[j];
-			arrowsVector.erase(arrowsVector.begin() + j);
-		}
-	}
+	updateArrows();
 }
 
 void
 Game::run()
 {
 	while (!exit) {
-		
+
 		// Calculamos frameStart y despues frameEnd 
 		int frameStart = SDL_GetTicks();
-		
+
 		// Manejamos los posibles eventos 
 		handleEvents();
-		
+
 		// Actualizamos el estado de todos los objetos del juego
 		update();
-		
+
 		// Renderizamos todos los objetos del juego
 		render();
-		
+
 		// Usamos frameEnd y frameStart para lograr que el juego se ciña a
 		// FRAME_PERIOD, que se corresponde con el tiempo entre frames
 		int frameEnd = SDL_GetTicks();
@@ -272,7 +316,7 @@ Game::handleEvents()
 {
 	SDL_Event event;
 
-	// Only quit is handled directly, everything else is delegated
+	// Solo quit se maneja directamente, todo lo demás se delegado
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_EVENT_QUIT)
 			exit = true;
@@ -296,51 +340,19 @@ Game::checkCollision(const Rectangle& rect) {
 void
 Game::LoadGame(std::ifstream& file) {
 	string keyword;
-	int temp;
-	goal = 1000;
+	goal = DEFAULT_GOAL;
 
 	while (file >> keyword) { // Leer palabra de comentarios
-		if (keyword == "arrows") {
-			if (!(file >> temp) || temp < 1) {
-				throw "No se pudo leer un numero valido para arrows"s;
-			}
-			else arrows = temp;
-		}
-		else if (keyword == "baldelay") {
-			if (!(file >> temp) || temp < 500) {
-				throw "No se pudo leer un numero valido para baldelay"s;
-			}
-			else baldelay = temp;
-		}
+		if (keyword == "arrows")         arrows = readValue(file, keyword, MIN_ARROWS);
+		else if (keyword == "baldelay")  baldelay = readValue(file, keyword, MIN_BALDELAY);
+		else if (keyword == "balpoints") balPoints = readValue(file, keyword, 0);
+		else if (keyword == "goal")      goal = readValue(file, keyword, 0);
 		else if (keyword == "bgcolor") {
-			if (!(file >> temp) || temp < 0) {
-				throw "No se pudo leer un numero valido para bgcolor"s;
-			}
-			backgroundColor.r = temp;
-			if (!(file >> temp) || temp < 0) {
-				throw "No se pudo leer un numero valido para bgcolor"s;
-			}
-			backgroundColor.g = temp;
-			if (!(file >> temp) || temp < 0) {
-				throw "No se pudo leer un numero valido para bgcolor"s;
-			}
-			backgroundColor.b = temp;
+			backgroundColor.r = readValue(file, keyword, 0);
+			backgroundColor.g = readValue(file, keyword, 0);
+			backgroundColor.b = readValue(file, keyword, 0);
 		}
-		else if (keyword == "balpoints") {
-			if (!(file >> temp) || temp < 0) {
-				throw "No se pudo leer un numero valido para balpoints"s;
-			}
-			balPoints = temp;
-		}
-		else if (keyword == "goal") {
-			if (!(file >> temp) || temp < 0) {
-				throw "No se pudo leer un numero valido para bgcolor"s;
-			}
-			goal = temp;
-		}
-		else {
-			file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-		}
+		else file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
 	playerPoints = 0;
 }

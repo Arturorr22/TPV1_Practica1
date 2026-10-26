@@ -17,7 +17,6 @@ int main(int argc, char* argv[])
 	catch (const string& errorMessage) {
 		cout << errorMessage << "\n";
 	}
-	// TODO: manejar excepciones
 
 	return 0;
 }

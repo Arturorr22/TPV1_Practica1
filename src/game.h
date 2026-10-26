@@ -21,9 +21,8 @@
 class Texture;
 class Arrow;
 
-/**
- * Clase principal del juego.
- */
+// Clase principal del juego.
+
 class Game
 {
 public:
@@ -51,14 +50,14 @@ private:
 	void render() const;
 	void update();
 	void handleEvents();
-	
+
 	bool exit;
 
 	int levelToLoad = 1;
 
 	// Número de flechas
 	int arrows = 1;
-	
+
 	// tiempo de espera en milisegundos entre la generación de un globo y su 
 	// siguiente
 	int baldelay = 500;
@@ -70,39 +69,43 @@ private:
 
 	struct Color { int r, g, b; };
 	Color backgroundColor;
-	
+
 	// Arco
 	Bow* bow;
 
 	// InfoBar
-	InfoBar* infoBar; 
-	
+	InfoBar* infoBar;
+
 	// Generador de números pseudoaleatorios
 	std::mt19937_64 generator;
-	
+
 	// Variables para gestionar el tiempo
 	uint64_t LastBalloonTime;
 	uint64_t nextBalloon;
-	
+
 	// Vector que almacena los globos generados
 	std::vector<Balloon*> balloonsVector;
-	
+
 	// Elementos del juego
 	std::vector<Arrow*> arrowsVector;
-	
+
 	// Método que lee de un archivo de entrada los datos de baldelay, arrows, etc...
 	void LoadGame(std::ifstream& file);
 
 	void createBalloon();
 	void createArrow();
+
+	// Actualizan los globos y las flechas, eliminando los que ya no siguen en escena
+	void updateBalloons();
+	void updateArrows();
 public:
 
 	Game();
 	~Game();
-	
+
 	// Obtiene una textura por su nombre
 	Texture* getTexture(TextureName name) const;
-	
+
 	// Ejecuta el bucle principal del juego
 	void run();
 

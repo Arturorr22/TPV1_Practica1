@@ -12,6 +12,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# El código carga los recursos con rutas relativas al .exe ("../assets/images/..."),
+# así que el ejecutable se genera en <raiz>/bin, al lado de la carpeta assets
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+
 # Opción para activar el comprobador de memoria
 option(ENABLE_ASAN "Activa el comprobador de memoria AddressSanitizer")
 
@@ -71,3 +75,13 @@ add_executable(ProyectoSDL
 	src/arrow.cpp
 	src/infobar.cpp
 )
+
+# En Windows copia las DLL de SDL junto al .exe después de compilar
+if (CMAKE_HOST_WIN32)
+	add_custom_command(TARGET ProyectoSDL POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			"${CMAKE_SOURCE_DIR}/libs/SDL3/lib/SDL3.dll"
+			"${CMAKE_SOURCE_DIR}/libs/SDL3_image/lib/SDL3_image.dll"
+			"$<TARGET_FILE_DIR:ProyectoSDL>"
+	)
+endif()
