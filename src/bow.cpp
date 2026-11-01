@@ -1,16 +1,6 @@
 #include "bow.h"
 #include "game.h"
 
-// Velocidad de movimiento vertical del arco
-constexpr float BOW_SPEED = 0.10f;
-const Vector2D<> BOW_MOVE_DOWN{ 0.0f, BOW_SPEED };
-const Vector2D<> BOW_MOVE_UP{ 0.0f, -BOW_SPEED };
-
-// Frames de la textura del arco
-constexpr int BOW_ROW = 0;
-constexpr int LOADED_FRAME = 0;
-constexpr int UNLOADED_FRAME = 1;
-
 // Implementación del constructor arco
 Bow::Bow(const Rectangle destRect, const Vector2D<>& speed, const int arrows,
     const bool loaded, Texture* texture)

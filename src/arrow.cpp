@@ -1,12 +1,6 @@
 #include "arrow.h"
 #include "game.h"
 
-// Proporciones del rectángulo de la punta respecto al rectángulo de la flecha
-constexpr float TIP_X_FACTOR = 2.0f / 3.0f;
-constexpr float TIP_Y_FACTOR = 1.0f / 3.0f;
-constexpr float TIP_WIDTH_FACTOR = 1.0f / 4.0f;
-constexpr float TIP_HEIGHT_FACTOR = 1.0f / 2.0f;
-
 // Crea un objeto Arrow con el rectángulo de destino, la velocidad y la textura proporcionados
 Arrow::Arrow(Game* game, const Rectangle destRect, const Vector2D<>& speed, Texture* texture)
 	: game(game), rect(destRect), speed(speed), texture(texture) {

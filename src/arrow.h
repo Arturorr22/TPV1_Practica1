@@ -15,6 +15,12 @@ class Arrow {
 		Vector2D<> speed; // Velocidad de la flecha
 		Texture* texture; // Puntero a la textura de la flecha
 
+		// Proporciones del rectángulo de la punta respecto al rectángulo de la flecha
+		static constexpr float TIP_X_FACTOR = 2.0f / 3.0f;
+		static constexpr float TIP_Y_FACTOR = 1.0f / 3.0f;
+		static constexpr float TIP_WIDTH_FACTOR = 1.0f / 4.0f;
+		static constexpr float TIP_HEIGHT_FACTOR = 1.0f / 2.0f;
+
 	public:
 
 		// Constructor que inicializa la flecha con el juego, el rectángulo de destino, la velocidad y la textura

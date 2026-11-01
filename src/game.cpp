@@ -10,41 +10,6 @@
 
 using namespace std;
 
-// Constantes
-constexpr const char* const WINDOW_TITLE = "Bow & Arrow 1.0";
-constexpr const char* IMAGE_ROOT = "../assets/images/";
-constexpr const char* LEVEL_ROOT = "../assets/levels/";
-
-// Carga de niveles
-constexpr int DEFAULT_GOAL = 1000;
-constexpr int MIN_ARROWS = 1;
-constexpr int MIN_BALDELAY = 500;
-
-// Render
-constexpr Uint8 OPAQUE_ALPHA = 255;
-
-// Globos
-constexpr int NUM_BALLOON_COLORS = 7; // filas de balloons.png
-constexpr float MIN_BALLOON_SPEED = -0.05f;
-constexpr float MAX_BALLOON_SPEED = -0.02f;
-constexpr float BALLOON_MIN_X_DIV = 3.0f; // posX mínima = WINDOW_WIDTH / 3
-constexpr float BALLOON_WIDTH_DIV = 6.25f;
-constexpr float BALLOON_HEIGHT_DIV = 4.7f;
-constexpr float BALLOONS_PER_DELAY = 1.0f; // Número medio de globos por cada baldelay milisegundos (tasa = BALLOONS_PER_DELAY / baldelay)
-
-// Arco
-constexpr float BOW_SIZE_DIV = 3.15f;
-constexpr float BOW_WIDTH_DIV = 4.0f;
-
-// Flecha
-constexpr float ARROW_WIDTH_DIV = 5.95f;
-constexpr float ARROW_HEIGHT_DIV = 21.95f;
-constexpr float ARROW_OFFSET_DIV = 6.3f;
-constexpr float ARROW_SPEED = 0.1f;
-
-// InfoBar (mitad del tamaño de la flecha)
-constexpr float INFOBAR_SCALE = 2.0f;
-
 // Estructura para especificar las texturas que hay que
 // cargar y el tamaño de su matriz de frames
 struct TextureSpec

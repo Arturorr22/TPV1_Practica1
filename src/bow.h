@@ -7,7 +7,6 @@
 
 class Bow {
     private:
-
         // Rectángulo que contiene la posición y las dimensiones
         // del arco.
         // Posición => .corner
@@ -25,6 +24,17 @@ class Bow {
 
         // Puntero que apunta a la textura del arco
         Texture* texture;
+
+        // Velocidad de movimiento vertical del arco
+        static constexpr float BOW_SPEED = 0.10f;
+		// inline hace que las variables sean definidas en el header y no en el cpp, evitando errores de linking
+        static inline const Vector2D<> BOW_MOVE_DOWN{ 0.0f, BOW_SPEED };
+        static inline const Vector2D<> BOW_MOVE_UP{ 0.0f, -BOW_SPEED };
+
+        // Frames de la textura del arco
+        static constexpr int BOW_ROW = 0;
+        static constexpr int LOADED_FRAME = 0;
+        static constexpr int UNLOADED_FRAME = 1;
 
     public:
 

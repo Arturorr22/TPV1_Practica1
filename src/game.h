@@ -43,6 +43,41 @@ public:
 	};
 
 private:
+	// Rutas y título
+	static constexpr const char* WINDOW_TITLE = "Bow & Arrow 1.0";
+	static constexpr const char* IMAGE_ROOT = "../assets/images/";
+	static constexpr const char* LEVEL_ROOT = "../assets/levels/";
+
+	// Carga de niveles
+	static constexpr int DEFAULT_GOAL = 1000;
+	static constexpr int MIN_ARROWS = 1;
+	static constexpr int MIN_BALDELAY = 500;
+
+	// Render
+	static constexpr Uint8 OPAQUE_ALPHA = 255;
+
+	// Globos
+	static constexpr int NUM_BALLOON_COLORS = 7;           // filas de balloons.png
+	static constexpr float MIN_BALLOON_SPEED = -0.05f;
+	static constexpr float MAX_BALLOON_SPEED = -0.02f;
+	static constexpr float BALLOON_MIN_X_DIV = 3.0f;       // posX mínima = WINDOW_WIDTH / 3
+	static constexpr float BALLOON_WIDTH_DIV = 6.25f;
+	static constexpr float BALLOON_HEIGHT_DIV = 4.7f;
+	static constexpr float BALLOONS_PER_DELAY = 1.0f;      // tasa = BALLOONS_PER_DELAY / baldelay
+
+	// Arco
+	static constexpr float BOW_SIZE_DIV = 3.15f;
+	static constexpr float BOW_WIDTH_DIV = 4.0f;
+
+	// Flecha
+	static constexpr float ARROW_WIDTH_DIV = 5.95f;
+	static constexpr float ARROW_HEIGHT_DIV = 21.95f;
+	static constexpr float ARROW_OFFSET_DIV = 6.3f;
+	static constexpr float ARROW_SPEED = 0.1f;
+
+	// InfoBar (mitad del tamaño de la flecha)
+	static constexpr float INFOBAR_SCALE = 2.0f;
+
 	SDL_Window* window;
 	SDL_Renderer* renderer;
 	std::array<Texture*, NUM_TEXTURES> textures;
