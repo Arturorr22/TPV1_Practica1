@@ -232,6 +232,23 @@ Game::update()
 
 	// Actualizamos las flechas
 	updateArrows();
+
+	if (playerPoints >= goal) loadNextLevel();
+}
+
+void
+Game::loadNextLevel()
+{
+	string levelRoot = LEVEL_ROOT;
+	ifstream levelFile((levelRoot + to_string(levelToLoad) + ".txt").c_str());
+	if (!levelFile.is_open())
+		throw "Fichero del nivel no encontrado"s;
+
+	LoadGame(levelFile);
+	levelFile.close();
+	infoBar->updateArrows(arrows);
+	bow->updateArrows(arrows);
+	++levelToLoad;
 }
 
 void
@@ -259,20 +276,6 @@ Game::run()
 		}
 
 		if ((arrows == 0 && arrowsVector.empty())) exit = true;
-
-		if (playerPoints >= goal) {
-			string levelRoot = LEVEL_ROOT;
-			ifstream levelFile((levelRoot + to_string(levelToLoad) + ".txt").c_str());
-			if (!levelFile.is_open())
-				throw "Fichero del nivel no encontrado"s;
-			else {
-				LoadGame(levelFile);
-				levelFile.close();
-				infoBar->updateArrows(arrows);
-				bow->updateArrows(arrows);
-				++levelToLoad;
-			}
-		}
 	}
 }
 

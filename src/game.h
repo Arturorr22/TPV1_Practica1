@@ -126,6 +126,7 @@ private:
 
 	// Método que lee de un archivo de entrada los datos de baldelay, arrows, etc...
 	void LoadGame(std::ifstream& file);
+	void loadNextLevel();
 
 	void createBalloon();
 	void createArrow();
