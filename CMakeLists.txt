@@ -74,6 +74,9 @@ add_executable(ProyectoSDL
 	src/bow.cpp
 	src/arrow.cpp
 	src/infobar.cpp
+	src/gameobject.cpp
+	src/sceneobject.cpp
+	src/mobileobject.cpp
 )
 
 # En Windows copia las DLL de SDL junto al .exe después de compilar
