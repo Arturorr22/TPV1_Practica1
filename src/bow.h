@@ -32,7 +32,7 @@ class Bow : public SceneObject {
 
         // Declaramos la sobreescritura de los métodos render y update
         void render() const override;
-        void update() override;
+        bool update(const float delta) override;
 
 };
 

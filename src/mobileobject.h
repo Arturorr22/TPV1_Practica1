@@ -14,6 +14,9 @@ class MobileObject : public SceneObject {
         // Constructor de la clase MobileObject
         MobileObject(Game* game, const Rectangle& rect, Texture* texture, 
             const Vector2D<>& speed);
+
+        // Sobreescritura del método update heredado de la clase GameObject
+        bool update(const float delta) override;
 };
 
 #endif

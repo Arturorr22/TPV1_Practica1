@@ -1,6 +1,12 @@
 #ifndef BALLOON_H
 #define BALLOON_H
 
+#include "mobileobject.h"
+
+class Balloon : public MobileObject {
+    
+};
+/*
 #include "texture.h"
 #include "rectangle.h"
 
@@ -42,5 +48,6 @@ class Balloon {
         bool update(const float delta);
 
 };
+*/
 
 #endif

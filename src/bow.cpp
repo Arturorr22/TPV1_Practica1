@@ -35,13 +35,14 @@ void Bow::render() const {
 }
 
 // Implemetación del método update de la clase Bow
-void Bow::update() {
+bool Bow::update(const float delta) {
 
     if (rect.getTopLeftCorner().getY() < 0) {
         rect.move(Vector2D(0.0f, abs(rect.getTopLeftCorner().getY())));
     }
     else if (rect.getTopLeftCorner().getY() + rect.getHeight() > Game::WINDOW_HEIGHT) {
-        float moveDistanceY = -(rect.getTopLeftCorner().getY() + rect.getHeight()) - Game::WINDOW_HEIGHT;
+        float moveDistanceY = -((rect.getTopLeftCorner().getY() + rect.getHeight()) - Game::WINDOW_HEIGHT);
         rect.move(Vector2D(0.0f, moveDistanceY));
     }
+    return true;
 }

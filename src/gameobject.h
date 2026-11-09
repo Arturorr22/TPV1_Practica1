@@ -17,7 +17,7 @@ class GameObject {
         // Métodos abstractos de la clase que más tarde se sobrecargarán
         virtual ~GameObject() = default;
         virtual void render() const = 0;
-        virtual void update() = 0;
+        virtual bool update(const float delta) = 0;
 
 };
 
