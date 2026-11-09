@@ -1,36 +1,36 @@
 #ifndef ARROW_H
 #define ARROW_H
 
-#include "rectangle.h"
-#include "vector2D.h"
-#include "texture.h"
+#include "mobileobject.h"
 
-class Game;  // Declaración anticipada de la clase Game
+// Clase que representa una flecha en el juego. Es un objeto móvil de la escena
+// (game, rect, texture y speed los guardan sus clases base)
+class Arrow : public MobileObject {
+private:
 
-// Clase que representa una flecha en el juego
-class Arrow {
-	private:
-		Game* game; // Puntero a la instancia del juego
-		Rectangle rect; // Rectángulo que define la posición y dimensiones de la flecha
-		Vector2D<> speed; // Velocidad de la flecha
-		Texture* texture; // Puntero a la textura de la flecha
+	// Proporciones del rectángulo de la punta respecto al rectángulo de la flecha
+	static constexpr float TIP_X_FACTOR = 2.0f / 3.0f;
+	static constexpr float TIP_Y_FACTOR = 1.0f / 3.0f;
+	static constexpr float TIP_WIDTH_FACTOR = 1.0f / 4.0f;
+	static constexpr float TIP_HEIGHT_FACTOR = 1.0f / 2.0f;
 
-		// Proporciones del rectángulo de la punta respecto al rectángulo de la flecha
-		static constexpr float TIP_X_FACTOR = 2.0f / 3.0f;
-		static constexpr float TIP_Y_FACTOR = 1.0f / 3.0f;
-		static constexpr float TIP_WIDTH_FACTOR = 1.0f / 4.0f;
-		static constexpr float TIP_HEIGHT_FACTOR = 1.0f / 2.0f;
+	// Calcula el rectángulo de la punta a partir de la posición actual de la flecha
+	Rectangle getTipRect() const;
 
-	public:
+public:
 
-		// Constructor que inicializa la flecha con el juego, el rectángulo de destino, la velocidad y la textura
-		Arrow(Game* game, const Rectangle destRect, const Vector2D<>& speed, Texture* texture);
-		
-		// Renderiza la flecha en la pantalla
-		void render() const;
-		
-		// Actualiza la posición de la flecha y devuelve true si sigue activa, false si ha salido de la pantalla
-		bool update(const float delta); //La velocidad es en pixeles*milisegundos
+	// Constructor de la clase Arrow
+	Arrow(Game* game, const Rectangle& rect, Texture* texture, const Vector2D<>& speed);
+
+	// Renderiza la flecha en la pantalla
+	void render() const override;
+
+	// Mueve la flecha, comprueba si su punta alcanza algo y devuelve true si sigue
+	// activa, false si ha salido de la pantalla. La velocidad es en píxeles/milisegundo
+	bool update(const float delta) override;
+
+	// Una flecha no es un objetivo: nunca recibe impactos (ni de sí misma)
+	bool hit(const Rectangle& obj) override;
 };
 
 #endif // ARROW_H

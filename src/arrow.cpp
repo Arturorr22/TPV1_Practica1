@@ -1,31 +1,42 @@
 #include "arrow.h"
 #include "game.h"
 
-// Crea un objeto Arrow con el rectángulo de destino, la velocidad y la textura proporcionados
-Arrow::Arrow(Game* game, const Rectangle destRect, const Vector2D<>& speed, Texture* texture)
-	: game(game), rect(destRect), speed(speed), texture(texture) {
+// Implementación del constructor de la clase Arrow
+Arrow::Arrow(Game* game, const Rectangle& rect, Texture* texture, const Vector2D<>& speed)
+	: MobileObject(game, rect, texture, speed)
+{
 }
 
-// Implementa la lógica de renderizado de la flecha utilizando la textura y el rectángulo
+// Implementación del método render de la clase Arrow
 void Arrow::render() const {
-	texture->render(rect.to_sdl());
+	if (texture != nullptr) {
+		texture->render(rect.to_sdl());
+	}
 }
 
-// Implementa la lógica de actualización de la flecha
+// Implementación del método getTipRect de la clase Arrow
+Rectangle Arrow::getTipRect() const {
+	return Rectangle({ rect.getTopLeftCorner().getX() + rect.getWidth() * TIP_X_FACTOR,
+					   rect.getTopLeftCorner().getY() + rect.getHeight() * TIP_Y_FACTOR },
+		rect.getWidth() * TIP_WIDTH_FACTOR,
+		rect.getHeight() * TIP_HEIGHT_FACTOR);
+}
+
+// Implementación del método update de la clase Arrow
 bool Arrow::update(const float delta) {
 
-	// Actualiza la posición de la flecha según su velocidad y el tiempo transcurrido
-	rect.move(speed * delta);
+	// MobileObject mueve la flecha y devuelve false si ha salido de la pantalla
+	bool active = MobileObject::update(delta);
 
-	// Creamos el rectángulo de la punta
-	Rectangle r = Rectangle({ rect.getTopLeftCorner().getX() + (rect.getWidth() * TIP_X_FACTOR),
-							rect.getTopLeftCorner().getY() + (rect.getHeight() * TIP_Y_FACTOR) },
-		rect.getWidth() * TIP_WIDTH_FACTOR, rect.getHeight() * TIP_HEIGHT_FACTOR);
-	if (game->checkCollision(r)) {
+	// Si sigue en pantalla, comprobamos si su punta ha alcanzado algo
+	if (active && game->checkCollision(getTipRect())) {
 		game->increasePoints();
 	}
 
-	// Comprueba si la flecha ha salido de la pantalla mirando si la esquina superior 
-	// izquierda del rectángulo está fuera de los límites de la ventana
-	return !(rect.getTopLeftCorner().getX() > Game::WINDOW_WIDTH);
+	return active;
+}
+
+// Implementación del método hit de la clase Arrow
+bool Arrow::hit(const Rectangle&) {
+	return false;
 }
