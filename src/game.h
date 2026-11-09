@@ -10,12 +10,6 @@
 
 
 // Declaraciones anticipadas
-#include "rectangle.h"
-#include "vector2D.h"
-
-#include "balloon.h"
-#include "bow.h"
-#include "infobar.h"
 
 // Declaraciones anticipadas
 class Texture;

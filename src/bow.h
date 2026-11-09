@@ -2,7 +2,7 @@
 #define BOW_H
 
 #include "sceneobject.h"
-#include <SDL3_image/SDL_image.h>
+#include <SDL3/SDL.h>
 
 class Bow : public SceneObject {
     private: 
@@ -32,7 +32,7 @@ class Bow : public SceneObject {
 
         // Declaramos la sobreescritura de los métodos render y update
         void render() const override;
-        bool update(const float delta) override;
+        bool update(const float) override;
 
 };
 

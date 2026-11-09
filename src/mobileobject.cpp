@@ -1,4 +1,5 @@
 #include "mobileobject.h"
+#include "game.h"
 
 // Implementación del constructor de la clase MobileObject
 MobileObject::MobileObject(Game* game, const Rectangle& rect, Texture* texture, 

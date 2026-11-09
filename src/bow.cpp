@@ -1,4 +1,6 @@
 #include "bow.h"
+#include <cmath>
+#include "game.h"
 
 // Implementación del constructor de la clase Bow
 Bow::Bow(Game* game, const Rectangle& rect, Texture* texture, 
@@ -35,10 +37,10 @@ void Bow::render() const {
 }
 
 // Implemetación del método update de la clase Bow
-bool Bow::update(const float delta) {
+bool Bow::update(const float) {
 
     if (rect.getTopLeftCorner().getY() < 0) {
-        rect.move(Vector2D(0.0f, abs(rect.getTopLeftCorner().getY())));
+        rect.move(Vector2D(0.0f, std::abs(rect.getTopLeftCorner().getY())));
     }
     else if (rect.getTopLeftCorner().getY() + rect.getHeight() > Game::WINDOW_HEIGHT) {
         float moveDistanceY = -((rect.getTopLeftCorner().getY() + rect.getHeight()) - Game::WINDOW_HEIGHT);

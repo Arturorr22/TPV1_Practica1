@@ -4,50 +4,34 @@
 #include "mobileobject.h"
 
 class Balloon : public MobileObject {
-    
-};
-/*
-#include "texture.h"
-#include "rectangle.h"
-
-class Balloon {
     private:
-
-        // Rectángulo que contiene la posición y las dimensiones del globo.
-        // Posición => .corner
-        // Dimensiones => .width y .height 
-        Rectangle rect;
 
         // Color del globo que se corresponde con el índice de
         // la fila en la textura 
         int color;
 
-        // Velocidad del globo, de tipo Vector2D
-        Vector2D<> speed;
-
-        // Puntero que apunta a la textura del globo
-        Texture* texture;
-
         // Variables para controlar la animación de explosión del globo
         bool exploded;
         int animationFrame;
-    
+
+        // Número de frames de la animación de explosión del globo
+        static constexpr int EXPLOSION_FRAMES = 6;
+
     public:
 
-        // Constructor de la clase
-        Balloon(const Rectangle destRect, const int color, const Vector2D<>& speed, Texture* texture);
+        // Constructor de la clase Balloon
+        Balloon(Game* game, const Rectangle& rect, Texture* texture, 
+            const Vector2D<>& speed, const int color);
 
-        // Método que devuelve true si detecta una colisión con otro rectángulo
-        bool hit(const Rectangle& obj);
+        // Método hit de la clase Balloon
+        bool hit(const Rectangle& obj) override;
 
-        // Método que renderiza el objeto en la ventana de acuerdo a su forma y 
-        // textura
-        void render() const;
+        // Método render de la clase Balloon
+        void render() const override;
 
-        // Método que actualiza el globo en cada ciclo de juego
-        bool update(const float delta);
+        // Método update de la clase Balloon
+        bool update(const float delta) override;
 
 };
-*/
 
 #endif

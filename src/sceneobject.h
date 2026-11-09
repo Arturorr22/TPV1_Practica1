@@ -20,7 +20,7 @@ class SceneObject : public GameObject {
         SceneObject(Game* game, const Rectangle& rect, Texture* texture);
 
         // Método que comprueba si se da la colisión entre dos objetos de la escena
-        bool hit(const Rectangle& obj);
+        virtual bool hit(const Rectangle& obj);
         
 };
 
