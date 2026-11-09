@@ -2,7 +2,6 @@
 #define BOW_H
 
 #include "sceneobject.h"
-#include <SDL3/SDL.h>
 
 class Bow : public SceneObject {
     private: 

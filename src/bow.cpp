@@ -1,6 +1,6 @@
 #include "bow.h"
+#include <SDL3/SDL.h>
 #include <cmath>
-#include "game.h"
 
 // Implementación del constructor de la clase Bow
 Bow::Bow(Game* game, const Rectangle& rect, Texture* texture, 
