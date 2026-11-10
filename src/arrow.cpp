@@ -37,6 +37,7 @@ bool Arrow::update(const float delta) {
 }
 
 // Implementación del método hit de la clase Arrow
+// Una flecha no es un objetivo: nunca recibe impactos
 bool Arrow::hit(const Rectangle&) {
 	return false;
 }
