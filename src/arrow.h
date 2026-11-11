@@ -15,7 +15,7 @@ class Arrow : public MobileObject {
 		static constexpr float TIP_HEIGHT_FACTOR = 1.0f / 2.0f;
 
 		// Calcula el rectángulo de la punta a partir de la posición actual de la flecha
-		Rectangle getTipRect() const;
+		Rectangle getArrowHeadRect() const;
 
 	public:
 

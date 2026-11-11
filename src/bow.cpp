@@ -1,6 +1,5 @@
 #include "bow.h"
 #include <SDL3/SDL.h>
-#include <cmath>
 
 // Implementación del constructor de la clase Bow
 Bow::Bow(Game* game, const Rectangle& rect, Texture* texture, 
@@ -8,6 +7,7 @@ Bow::Bow(Game* game, const Rectangle& rect, Texture* texture,
     : SceneObject(game, rect, texture)
     , numArrows(numArrows)
     , loaded(loaded)
+    , bowDir(dir::none)
 {}
 
 // Implementación del método handleEvent de la clase Bow
@@ -27,7 +27,7 @@ void Bow::handleEvent(const SDL_Event& event) {
         // Comprobamos si el jugador quiere cargar o disparar el arco
         if (event.key.key == SDLK_LEFT && numArrows > 0) loaded = true;
         else if (event.key.key == SDLK_RIGHT && loaded) {
-            game->createArrow();
+            game->createArrow(rect);
             --numArrows;
             loaded = false;
         }
@@ -47,16 +47,22 @@ void Bow::render() const {
 // Implemetación del método update de la clase Bow
 bool Bow::update(const float delta) {
 
-    if (rect.getTopLeftCorner().getY() < 0) {
-        rect.move(Vector2D(0.0f, std::abs(rect.getTopLeftCorner().getY())));
+    // En función de la dirección comprobamos si se saldría de los límites de la pantalla
+    // Si no se saldría, movemos el arco
+    if (bowDir == dir::down && 
+        rect.getTopLeftCorner().getY() + rect.getHeight() + BOW_SPEED * delta <= Game::WINDOW_HEIGHT) {
+        rect.move(Vector2D(0.0f, BOW_SPEED * delta));
     }
-    else if (rect.getTopLeftCorner().getY() + rect.getHeight() > Game::WINDOW_HEIGHT) {
-        float moveDistanceY = -((rect.getTopLeftCorner().getY() + rect.getHeight()) - Game::WINDOW_HEIGHT);
-        rect.move(Vector2D(0.0f, moveDistanceY));
+    else if (bowDir == dir::up && rect.getTopLeftCorner().getY() - BOW_SPEED * delta > 0) {
+        rect.move(Vector2D(0.0f, -BOW_SPEED * delta));
     }
-    else {
-        if (bowDir == dir::down) rect.move(Vector2D(0.0f, BOW_SPEED * delta));
-        else if (bowDir == dir::up) rect.move(Vector2D(0.0f, -BOW_SPEED * delta));
-    }
+    
     return true;
+}
+
+// Implementación del método hit de la clase Bow
+bool Bow::hit(const Rectangle&) {
+
+    // Las colisiones con el arco no las contamos, por lo que devolvemos falso
+    return false;
 }

@@ -42,6 +42,9 @@ class Bow : public SceneObject {
         void render() const override;
         bool update(const float delta) override;
 
+        // Método hit de la clase Bow
+        bool hit(const Rectangle& obj) override;
+
 };
 
 #endif

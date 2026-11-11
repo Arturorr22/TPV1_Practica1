@@ -14,7 +14,7 @@ void Arrow::render() const {
 }
 
 // Implementación del método getTipRect de la clase Arrow
-Rectangle Arrow::getTipRect() const {
+Rectangle Arrow::getArrowHeadRect() const {
 	return Rectangle({ rect.getTopLeftCorner().getX() + rect.getWidth() * TIP_X_FACTOR,
 					   rect.getTopLeftCorner().getY() + rect.getHeight() * TIP_Y_FACTOR },
 		rect.getWidth() * TIP_WIDTH_FACTOR,
@@ -27,12 +27,13 @@ bool Arrow::update(const float delta) {
 	// MobileObject mueve la flecha y devuelve false si ha salido de la pantalla
 	bool active = MobileObject::update(delta);
 
-	/*
-	// Si sigue en pantalla, comprobamos si su punta ha alcanzado algo
-	if (active && game->checkCollision(getTipRect())) {
+	// Comprobamos si colisiona con algún objeto de la escena y, en ese caso, aumentamos
+	// los puntos del jugador
+	// Nota: los únicos objetos cuya colisión importa son los globos. El resto de objetos
+	// devolverán false 
+	if (game->checkCollision(getArrowHeadRect())) {
 		game->increasePoints();
 	}
-	*/
 
 	return active;
 }
