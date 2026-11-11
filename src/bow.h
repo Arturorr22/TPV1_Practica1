@@ -45,6 +45,9 @@ class Bow : public SceneObject {
         // Método hit de la clase Bow
         bool hit(const Rectangle& obj) override;
 
+        // Método updateArrows de la clase Bow
+        void updateArrows(const int newArrowsValue);
+
 };
 
 #endif

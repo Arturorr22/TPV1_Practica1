@@ -3,6 +3,7 @@
 #include "bow.h"
 #include "balloon.h"
 #include "arrow.h"
+#include "infobar.h"
 
 #include <SDL3_image/SDL_image.h>
 
@@ -24,6 +25,7 @@ constexpr array<TextureSpec, Game::NUM_TEXTURES> textureList{
 	TextureSpec{"balloons.png", 7, 6},
 	{"arrow.png"},
 	{"bow.png", 1, 2},
+	{"digits.png", 1, 10},
 };
 
 
@@ -75,11 +77,8 @@ Game::Game()
 	// Añadimos el arco a la lista de SceneObjects
 	addObject(bow);
 
-	/*
 	// Creamos la infoBar
-	infoBar = new InfoBar(Rectangle({ 0, 0 }, WINDOW_WIDTH / (ARROW_WIDTH_DIV * INFOBAR_SCALE),
-	WINDOW_HEIGHT / (ARROW_HEIGHT_DIV * INFOBAR_SCALE)), arrows, textures[ARROW]);
-	*/
+	infoBar = new InfoBar(this, textures[ARROW], textures[DIGITS], arrows, playerPoints);
 
 	// Configuramos la semilla del generador para la generación de globos
 	generator.seed(std::random_device()());
@@ -99,6 +98,9 @@ Game::~Game()
 		delete *it;
 		it = sceneObjects.erase(it);
 	}
+
+	// Borramos la infoBar
+	delete infoBar;
 	
 	// Destruimos las texturas
 	for (std::size_t i = 0; i < textures.size(); ++i)
@@ -149,6 +151,7 @@ Game::createArrow(const Rectangle& bowRect)
 
 	// Actualizamos el valor de arrows al actual
 	--arrows;
+	infoBar->updateArrows(arrows);
 }
 
 bool
@@ -166,6 +169,7 @@ void
 Game::increasePoints()
 {
 	playerPoints += balPoints;
+	infoBar->updatePlayerPoints(playerPoints);
 }
 
 // Lee un entero del fichero y comprueba que no sea menor que minValue.
@@ -257,7 +261,7 @@ Game::render() const
 		(*it)->render();
 	}
 
-	// infoBar->render();
+	infoBar->render();
 
 	SDL_RenderPresent(renderer);
 }
@@ -283,7 +287,7 @@ Game::update()
 	if (SDL_GetTicks() - LastBalloonTime > nextBalloon) createBalloon();
 
 	// Si el jugador supera la meta, cargamos el siguiente nivel
-	if (playerPoints >= goal) loadNextLevel();
+	if (goal != 0 && playerPoints >= goal) loadNextLevel();
 }
 
 void
@@ -320,9 +324,12 @@ Game::loadNextLevel()
 
 	LoadGame(levelFile);
 	levelFile.close();
-	/*
-	infoBar->updateArrows(arrows);
-	bow->updateArrows(arrows);
-	*/
 	++levelToLoad;
+	
+	// Actualizamos el número de flechas del arco
+	bow->updateArrows(arrows);
+
+	// Actualizamos la infoBar
+	infoBar->updateArrows(arrows);
+	infoBar->updatePlayerPoints(playerPoints);
 }

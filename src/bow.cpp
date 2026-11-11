@@ -66,3 +66,8 @@ bool Bow::hit(const Rectangle&) {
     // Las colisiones con el arco no las contamos, por lo que devolvemos falso
     return false;
 }
+
+// Implementación del método updateArrows de la clase Bow
+void Bow::updateArrows(const int newArrowsValue) {
+    numArrows = newArrowsValue;
+}

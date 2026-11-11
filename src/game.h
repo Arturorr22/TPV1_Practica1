@@ -21,9 +21,9 @@
 #include "rectangle.h"
 
 class Texture;
-class Arrow;
 class Bow;
 class SceneObject;
+class InfoBar;
 
 class Game {
 public:
@@ -41,6 +41,7 @@ public:
 		BALLOON = 0,
 		ARROW,
 		BOW,
+		DIGITS,
 		NUM_TEXTURES
 	};
 
@@ -80,12 +81,12 @@ private:
 	static constexpr int DEFAULT_ARROWS = 10;
 	static constexpr int DEFAULT_BALDELAY = 750;
 	static constexpr int DEFAULT_BALPOINTS = 10;
-	static constexpr int DEFAULT_GOAL = 100;
+	static constexpr int DEFAULT_GOAL = 0;
 	static constexpr int MIN_BACKGROUND = 0;
 	static constexpr int MIN_ARROWS = 1;
 	static constexpr int MIN_BALDELAY = 1;
 	static constexpr int MIN_BALPOINTS = 1;
-	static constexpr int MIN_GOAL = 1;
+	static constexpr int MIN_GOAL = 0;
 
 	// Constantes de renderizado
 	static constexpr Uint8 OPAQUE_ALPHA = 255;
@@ -126,6 +127,7 @@ private:
 	Bow* bow;
 	std::list<SceneObject*> sceneObjects;
 	SceneObject* lastArrow;
+	InfoBar* infoBar;
 
 	// Generador y temporizadores
 	std::mt19937_64 generator;
