@@ -17,15 +17,23 @@ void Bow::handleEvent(const SDL_Event& event) {
     if (event.type == SDL_EVENT_KEY_DOWN) {
 
         // Comprobamos si el jugador quiere mover el arco
-        if (event.key.key == SDLK_DOWN) rect.move(Vector2D(0.0f, BOW_SPEED));
-        else if (event.key.key == SDLK_UP) rect.move(Vector2D(0.0f, -BOW_SPEED));
+        if (event.key.key == SDLK_DOWN) {
+            bowDir = dir::down;
+        }
+        else if (event.key.key == SDLK_UP) {
+            bowDir = dir::up;
+        }
 
         // Comprobamos si el jugador quiere cargar o disparar el arco
         if (event.key.key == SDLK_LEFT && numArrows > 0) loaded = true;
         else if (event.key.key == SDLK_RIGHT && loaded) {
+            game->createArrow();
             --numArrows;
             loaded = false;
         }
+    }
+    else {
+        bowDir = dir::none;
     }
 }
 
@@ -37,7 +45,7 @@ void Bow::render() const {
 }
 
 // Implemetación del método update de la clase Bow
-bool Bow::update(const float) {
+bool Bow::update(const float delta) {
 
     if (rect.getTopLeftCorner().getY() < 0) {
         rect.move(Vector2D(0.0f, std::abs(rect.getTopLeftCorner().getY())));
@@ -45,6 +53,10 @@ bool Bow::update(const float) {
     else if (rect.getTopLeftCorner().getY() + rect.getHeight() > Game::WINDOW_HEIGHT) {
         float moveDistanceY = -((rect.getTopLeftCorner().getY() + rect.getHeight()) - Game::WINDOW_HEIGHT);
         rect.move(Vector2D(0.0f, moveDistanceY));
+    }
+    else {
+        if (bowDir == dir::down) rect.move(Vector2D(0.0f, BOW_SPEED * delta));
+        else if (bowDir == dir::up) rect.move(Vector2D(0.0f, -BOW_SPEED * delta));
     }
     return true;
 }

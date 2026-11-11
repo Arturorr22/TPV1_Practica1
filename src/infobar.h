@@ -1,6 +1,28 @@
 #ifndef INFOBAR_H
 #define INFOBAR_H
 
+#include "gameobject.h"
+#include "rectangle.h"
+
+class InfoBar : public GameObject {
+    private:
+
+        // Dimensiones y posición de la barra de flechas representada por un rectángulo
+        Rectangle arrowsBarRect;
+
+        // Puntero a la textura minimalista de la flecha
+        Texture* arrowTexture;
+
+    public:
+
+        // Método constructor de la clase InfoBar
+        InfoBar(Game* game, Texture* arrowTexture);
+
+        // Método render de la clase InfoBar
+        void render() const override;
+};
+
+/*
 #include "texture.h"
 #include "rectangle.h"
 
@@ -32,5 +54,7 @@ class InfoBar {
         // Método que actualiza el número de flechas de la InfoBar
         void updateArrows(const int newArrowsValue);
 };
+*/
+
 
 #endif

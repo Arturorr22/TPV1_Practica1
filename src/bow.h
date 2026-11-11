@@ -3,6 +3,12 @@
 
 #include "sceneobject.h"
 
+enum dir {
+    none,
+    up,
+    down
+};
+
 class Bow : public SceneObject {
     private: 
 
@@ -11,6 +17,9 @@ class Bow : public SceneObject {
 
         // Variable que indica si el arco está cargado o no
         bool loaded;
+
+        // Dirección del movimiento del arco
+        dir bowDir;
 
         // Velocidad de movimiento vertical del arco
         static constexpr float BOW_SPEED = 0.1f;
@@ -31,7 +40,7 @@ class Bow : public SceneObject {
 
         // Declaramos la sobreescritura de los métodos render y update
         void render() const override;
-        bool update(const float) override;
+        bool update(const float delta) override;
 
 };
 

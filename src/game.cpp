@@ -1,11 +1,11 @@
 #include "game.h"
-#include "texture.h"
-#include "arrow.h"
+#include <limits>
+#include "bow.h"
+#include "balloon.h"
 
 #include <SDL3_image/SDL_image.h>
 
 #include <string>
-#include <limits>
 #include <fstream>
 
 using namespace std;
@@ -25,17 +25,6 @@ constexpr array<TextureSpec, Game::NUM_TEXTURES> textureList{
 	{"bow.png", 1, 2},
 };
 
-namespace {
-
-	// Lee un entero del fichero y comprueba que no sea menor que minValue.
-	// Si no es válido, lanza una excepción con el nombre de la palabra clave
-	int readValue(std::ifstream& file, const string& name, int minValue) {
-		int value;
-		if (!(file >> value) || value < minValue)
-			throw "No se pudo leer un numero valido para "s + name;
-		return value;
-	}
-}
 
 Game::Game()
 	: exit(false)
@@ -43,24 +32,25 @@ Game::Game()
 	// Carga SDL y crea la ventana con su renderizador
 	if (!SDL_Init(SDL_INIT_VIDEO))
 		throw "SDL_Init: "s + SDL_GetError();
-
+	
 	if (!SDL_CreateWindowAndRenderer(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, 0, &window, &renderer))
 		throw "window or renderer: "s + SDL_GetError();
-
+	
 	// Carga las texturas al inicio
 	try {
 		textures.fill(nullptr);
 		string imgRoot = IMAGE_ROOT;
 		string levelRoot = LEVEL_ROOT;
-
+		
 		for (size_t i = 0; i < textures.size(); i++) {
 			auto [name, nrows, ncols] = textureList[i];
 			textures[i] = new Texture(renderer, (imgRoot + name).c_str(), nrows, ncols);
 		}
-
+		
+		// Leemos el nivel 1
+		levelToLoad = 1;
 		ifstream levelFile((levelRoot + to_string(levelToLoad) + ".txt").c_str());
-		if (!levelFile.is_open())
-			throw "Fichero del nivel no encontrado"s;
+		if (!levelFile.is_open()) throw "Fichero del nivel no encontrado"s;
 		else {
 			LoadGame(levelFile);
 			levelFile.close();
@@ -68,21 +58,27 @@ Game::Game()
 		}
 	}
 	catch (const string&) {
-
+		
 		// Destruimos las texturas
 		for (std::size_t i = 0; i < textures.size(); ++i)
 			delete textures[i];
-
-		throw; // relanza la excepción
+		
+		// Relanza la excepción
+		throw;
 	}
-
+	
 	// Creamos el arco
-	bow = new Bow(Rectangle({ 0, (float)(WINDOW_HEIGHT / 2 - WINDOW_HEIGHT / BOW_SIZE_DIV) },
-		WINDOW_HEIGHT / BOW_SIZE_DIV, WINDOW_WIDTH / BOW_WIDTH_DIV), { 0, 0 }, arrows, false, textures[BOW]);
+	bow = new Bow(this, Rectangle({0, (float)(WINDOW_HEIGHT / 2 - WINDOW_HEIGHT / BOW_HEIGHT_DIV)},
+		WINDOW_WIDTH / BOW_WIDTH_DIV, WINDOW_HEIGHT / BOW_HEIGHT_DIV), textures[BOW], arrows, false);
+	
+	// Añadimos el arco a la lista de SceneObjects
+	addObject(bow);
 
+	/*
 	// Creamos la infoBar
 	infoBar = new InfoBar(Rectangle({ 0, 0 }, WINDOW_WIDTH / (ARROW_WIDTH_DIV * INFOBAR_SCALE),
-		WINDOW_HEIGHT / (ARROW_HEIGHT_DIV * INFOBAR_SCALE)), arrows, textures[ARROW]);
+	WINDOW_HEIGHT / (ARROW_HEIGHT_DIV * INFOBAR_SCALE)), arrows, textures[ARROW]);
+	*/
 
 	// Configuramos la semilla del generador para la generación de globos
 	generator.seed(std::random_device()());
@@ -96,19 +92,17 @@ Game::Game()
 
 Game::~Game()
 {
-	// Destruimos los globos, las flechas y el arco
-	for (std::size_t j = 0; j < balloonsVector.size(); ++j)
-		delete balloonsVector[j];
-	for (std::size_t k = 0; k < arrowsVector.size(); ++k)
-		delete arrowsVector[k];
-	delete bow;
-
-	delete infoBar;
-
+	// Destruimos todos los objetos de la escena
+	auto it = sceneObjects.begin();
+	while (it != sceneObjects.end()) {
+		delete *it;
+		it = sceneObjects.erase(it);
+	}
+	
 	// Destruimos las texturas
 	for (std::size_t i = 0; i < textures.size(); ++i)
 		delete textures[i];
-
+	
 	// Destruimos el renderer y la ventana
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
@@ -123,24 +117,22 @@ Game::render() const
 
 	SDL_RenderClear(renderer);
 
-	// Renderizamos las flechas, los globos y el arco
-	for (std::size_t i = 0; i < arrowsVector.size(); ++i) {
-		arrowsVector[i]->render();
-	}
-	for (std::size_t i = 0; i < balloonsVector.size(); ++i) {
-		balloonsVector[i]->render();
-	}
-	bow->render();
-	infoBar->render();
+	// Renderizamos todos los objetos de la escena
+	for (auto it = sceneObjects.begin(); it != sceneObjects.end(); ++it) {
+		(*it)->render();
+	} 
+
+	// infoBar->render();
 
 	SDL_RenderPresent(renderer);
 }
 
 void
-Game::createBalloon() {
+Game::createBalloon()
+{
 
-	// Calculamos, de manera pseudoaleatoria, la posición del borde inferior 
-	// en la que aparecerá el globo, junto con su color y su velocidad en el 
+	// Calculamos, de manera pseudoaleatoria, la posición del borde inferior
+	// en la que aparecerá el globo, junto con su color y su velocidad en el
 	// eje y
 	int color = uniform_int_distribution<int>(0, NUM_BALLOON_COLORS - 1)(generator);
 	float speedY = uniform_real_distribution<float>(MIN_BALLOON_SPEED,
@@ -148,14 +140,10 @@ Game::createBalloon() {
 	float posX = uniform_real_distribution<float>(WINDOW_WIDTH / BALLOON_MIN_X_DIV,
 		WINDOW_WIDTH - WINDOW_WIDTH / BALLOON_WIDTH_DIV)(generator);
 
-	// Creamos el rectángulo en base a todas variables calculadas
-	Rectangle balloonRect({ posX, WINDOW_HEIGHT },
-		WINDOW_WIDTH / BALLOON_WIDTH_DIV,
-		WINDOW_HEIGHT / BALLOON_HEIGHT_DIV);
-
-	// Con todo calculado, creamos un globo y lo incorporamos al vector de 
-	// globos
-	balloonsVector.push_back(new Balloon(balloonRect, color, Vector2D<>(0, speedY), textures[BALLOON]));
+	// Creamos el globo y lo añadimos a sceneObjects
+	sceneObjects.push_back(new Balloon(this, Rectangle({posX, WINDOW_HEIGHT}, 
+		WINDOW_WIDTH / BALLOON_WIDTH_DIV, WINDOW_HEIGHT / BALLOON_HEIGHT_DIV), 
+		textures[BALLOON], Vector2D<>(0, speedY), color));
 
 	// Recalculamos el valor hasta el siguiente globo
 	nextBalloon = exponential_distribution<double>(BALLOONS_PER_DELAY / baldelay)(generator);
@@ -165,11 +153,11 @@ Game::createBalloon() {
 }
 
 void
-Game::createArrow() {
+Game::createArrow(const Rectangle& bowRect)
+{
+	sceneObjects.push_back(new Arrow);
 
-	// Guardamos el rectángulo del arco para usarlo para crear el rectángulo
-	// de la flecha
-	Rectangle bowRect = bow->getRect();
+	/*
 	Rectangle arrowRect({ 0, bowRect.getTopLeftCorner().getY() + WINDOW_HEIGHT / ARROW_OFFSET_DIV },
 		WINDOW_WIDTH / ARROW_WIDTH_DIV,
 		WINDOW_HEIGHT / ARROW_HEIGHT_DIV);
@@ -177,62 +165,39 @@ Game::createArrow() {
 	// Creamos la flecha y la metemos en el vector de flechas
 	arrowsVector.push_back(new Arrow(this, arrowRect, Vector2D<>(ARROW_SPEED, 0), textures[ARROW]));
 
-	// Actualizamos el valor de arrows al actual 
+	// Actualizamos el valor de arrows al actual
 	arrows = bow->getArrows();
-}
-
-void
-Game::updateBalloons()
-{
-	// Actualizamos todos los globos del vector de globos
-	std::size_t i = 0;
-	while (i < balloonsVector.size()) {
-		// Si el globo se sale de los límites, lo eliminamos del vector
-		if (balloonsVector[i]->update(FRAME_PERIOD)) ++i;
-		else {
-			delete balloonsVector[i];
-			balloonsVector.erase(balloonsVector.begin() + i);
-		}
-	}
-}
-
-void
-Game::updateArrows()
-{
-	// Actualizamos todas las flechas del vector de flechas
-	std::size_t j = 0;
-	while (j < arrowsVector.size()) {
-		// Si la flecha sale de la pantalla, la eliminamos del vector
-		if (arrowsVector[j]->update(FRAME_PERIOD)) ++j;
-		else {
-			delete arrowsVector[j];
-			arrowsVector.erase(arrowsVector.begin() + j);
-		}
-	}
+	*/
 }
 
 void
 Game::update()
 {
-	// Actualizamos el arco
-	bow->update(FRAME_PERIOD);
-
+	
+	// Actualizamos todos los objetos de la escena
+	auto it = sceneObjects.begin();
+	while (it != sceneObjects.end()) {
+		if ((*it)->update(FRAME_PERIOD)) ++it;
+		else {
+			delete *it;
+			it = sceneObjects.erase(it);
+		} 
+	}
+	
 	// Comprobamos si ya ha pasado suficiente tiempo desde la generación del último globo
 	if (SDL_GetTicks() - LastBalloonTime > nextBalloon) createBalloon();
-
-	// Una vez hemos generado (o no) un globo, actualizamos los globos
-	updateBalloons();
-
+	
+	/*
 	// Si el número de flechas ha disminuido en comparación con el anterior update,
 	// disparamos una flecha desde la posición del arco
 	if (bow->getArrows() < arrows) {
 		infoBar->decrementArrows();
 		createArrow();
-	}
-
-	// Actualizamos las flechas
-	updateArrows();
-
+		}
+	*/
+	
+	if (arrows == 0) exit = true;
+	
 	if (playerPoints >= goal) loadNextLevel();
 }
 
@@ -246,8 +211,10 @@ Game::loadNextLevel()
 
 	LoadGame(levelFile);
 	levelFile.close();
+	/*
 	infoBar->updateArrows(arrows);
 	bow->updateArrows(arrows);
+	*/
 	++levelToLoad;
 }
 
@@ -255,11 +222,10 @@ void
 Game::run()
 {
 	while (!exit) {
-
-		// Calculamos frameStart y despues frameEnd 
+		// Calculamos frameStart y despues frameEnd
 		int frameStart = SDL_GetTicks();
 
-		// Manejamos los posibles eventos 
+		// Manejamos los posibles eventos
 		handleEvents();
 
 		// Actualizamos el estado de todos los objetos del juego
@@ -274,8 +240,6 @@ Game::run()
 		if (frameEnd - frameStart < FRAME_PERIOD) {
 			SDL_Delay(FRAME_PERIOD - (frameEnd - frameStart));
 		}
-
-		if ((arrows == 0 && arrowsVector.empty())) exit = true;
 	}
 }
 
@@ -284,7 +248,7 @@ Game::handleEvents()
 {
 	SDL_Event event;
 
-	// Solo quit se maneja directamente, todo lo demás se delegado
+	// Solo quit se maneja directamente, todo lo demás se delega al arco (Bow)
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_EVENT_QUIT)
 			exit = true;
@@ -294,36 +258,72 @@ Game::handleEvents()
 	}
 }
 
-bool
-Game::checkCollision(const Rectangle& rect) {
+// Implementación del método addObject de la clase Game
+void
+Game::addObject(SceneObject* obj)
+{
+	if (obj != nullptr) {
+		sceneObjects.push_back(obj);
+	}
+}
 
+/*
+bool
+Game::checkCollision(const Rectangle& rect)
+{
+	
 	// Comprobamos si alguno de los globos del vector colisiona con el rectángulo
 	// recibido de la flecha
 	std::size_t i = 0;
 	while (i < balloonsVector.size() && !balloonsVector[i]->hit(rect)) ++i;
 	return i != balloonsVector.size();
+	
+}
+*/
+
+// Lee un entero del fichero y comprueba que no sea menor que minValue.
+// Si no es válido, lanza una excepción con el nombre de la palabra clave
+int readValue(std::ifstream& file, const string& name, int minValue) {
+	int value;
+	if (!(file >> value) || value < minValue)
+		throw "No se pudo leer un numero valido para "s + name;
+	return value;
 }
 
 // Implementación del método LoadGame
 void
-Game::LoadGame(std::ifstream& file) {
-	string keyword;
+Game::LoadGame(std::ifstream& file)
+{
+	// Asignamos unos valores por defecto a los atributos de Game por si el archivo 
+	// no los modifica
+	backgroundColor = DEFAULT_BACKGROUND;
+	arrows = DEFAULT_ARROWS;
+	baldelay = DEFAULT_BALDELAY;
+	balPoints = DEFAULT_BALPOINTS;
 	goal = DEFAULT_GOAL;
+	
+	// Leemos el archivo y modificamos los atributos de Game
+	string keyword;
+	while (file >> keyword) {
 
-	while (file >> keyword) { // Leer palabra de comentarios
-		if (keyword == "arrows")         arrows = readValue(file, keyword, MIN_ARROWS);
-		else if (keyword == "baldelay")  baldelay = readValue(file, keyword, MIN_BALDELAY);
-		else if (keyword == "balpoints") balPoints = readValue(file, keyword, 0);
-		else if (keyword == "goal")      goal = readValue(file, keyword, 0);
-		else if (keyword == "bgcolor") {
-			backgroundColor.r = readValue(file, keyword, 0);
-			backgroundColor.g = readValue(file, keyword, 0);
-			backgroundColor.b = readValue(file, keyword, 0);
+		// Leemos la primera palabra de cada línea e intentamos almacenar el valor
+		// escrito después
+		if (keyword == "bgcolor") {
+			backgroundColor.r = readValue(file, keyword, MIN_BACKGROUND);
+			backgroundColor.g = readValue(file, keyword, MIN_BACKGROUND);
+			backgroundColor.b = readValue(file, keyword, MIN_BACKGROUND);
 		}
+		else if (keyword == "arrows") arrows = readValue(file, keyword, MIN_ARROWS);
+		else if (keyword == "baldelay") baldelay = readValue(file, keyword, MIN_BALDELAY);
+		else if (keyword == "balpoints") balPoints = readValue(file, keyword, MIN_BALPOINTS);
+		else if (keyword == "goal") goal = readValue(file, keyword, MIN_GOAL);
 		else file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
+
+	// Fijamos los puntos del jugador a 0
 	playerPoints = 0;
 }
+
 
 // Implementación del método increasePoints
 void Game::increasePoints() { playerPoints += balPoints; }

@@ -4,8 +4,7 @@
 // Implementación del constructor de la clase Arrow
 Arrow::Arrow(Game* game, const Rectangle& rect, Texture* texture, const Vector2D<>& speed)
 	: MobileObject(game, rect, texture, speed)
-{
-}
+{}
 
 // Implementación del método render de la clase Arrow
 void Arrow::render() const {
@@ -28,10 +27,12 @@ bool Arrow::update(const float delta) {
 	// MobileObject mueve la flecha y devuelve false si ha salido de la pantalla
 	bool active = MobileObject::update(delta);
 
+	/*
 	// Si sigue en pantalla, comprobamos si su punta ha alcanzado algo
 	if (active && game->checkCollision(getTipRect())) {
 		game->increasePoints();
 	}
+	*/
 
 	return active;
 }
