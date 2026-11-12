@@ -4,6 +4,7 @@
 #include "balloon.h"
 #include "arrow.h"
 #include "infobar.h"
+#include "butterfly.h"
 
 #include <SDL3_image/SDL_image.h>
 
@@ -26,6 +27,7 @@ constexpr array<TextureSpec, Game::NUM_TEXTURES> textureList{
 	{"arrow.png"},
 	{"bow.png", 1, 2},
 	{"digits.png", 1, 10},
+	{"butterfly.png", 4, 10},
 };
 
 
@@ -82,6 +84,9 @@ Game::Game()
 
 	// Configuramos la semilla del generador para la generación de globos
 	generator.seed(std::random_device()());
+
+	// Creamos las mariposas
+	createButterflies();
 
 	// Calculamos el tiempo que ha de pasar hasta que aparezca el primer globo
 	nextBalloon = exponential_distribution<double>(BALLOONS_PER_DELAY / baldelay)(generator);
@@ -192,6 +197,7 @@ Game::LoadGame(std::ifstream& file)
 	baldelay = DEFAULT_BALDELAY;
 	balPoints = DEFAULT_BALPOINTS;
 	goal = DEFAULT_GOAL;
+	numButterflies = DEFAULT_BUTTERFLIES;
 
 	// Leemos el archivo y modificamos los atributos de Game
 	string keyword;
@@ -208,6 +214,7 @@ Game::LoadGame(std::ifstream& file)
 		else if (keyword == "baldelay") baldelay = readValue(file, keyword, MIN_BALDELAY);
 		else if (keyword == "balpoints") balPoints = readValue(file, keyword, MIN_BALPOINTS);
 		else if (keyword == "goal") goal = readValue(file, keyword, MIN_GOAL);
+		else if (keyword == "butterflies") numButterflies = readValue(file, keyword, MIN_BUTTERFLIES);
 		else file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
 
@@ -246,6 +253,30 @@ Game::createBalloon()
 
 	// Actualizamos el valor de LastBalloonTime
 	LastBalloonTime = SDL_GetTicks();
+}
+
+// Implementación del método randomFloat de la clase Game
+float Game::randomFloat(float min, float max) {
+	return uniform_real_distribution<float>(min, max)(generator);
+}
+
+void
+Game::createButterflies()
+{
+	// Calculamos el tamaño, igual para todas: el alto sale de la proporción del frame
+	const float width = WINDOW_WIDTH / BUTTERFLY_WIDTH_DIV;
+	const float height = width / textures[BUTTERFLY]->getAspectRatio();
+
+	for (int i = 0; i < numButterflies; ++i) {
+
+		// Posición aleatoria con la mariposa completa dentro de la ventana
+		const float posX = randomFloat(0.0f, WINDOW_WIDTH - width);
+		const float posY = randomFloat(0.0f, WINDOW_HEIGHT - height);
+
+		// La dirección inicial la elige la propia mariposa
+		sceneObjects.push_back(new Butterfly(this, Rectangle({ posX, posY }, width, height),
+			textures[BUTTERFLY]));
+	}
 }
 
 void
@@ -325,6 +356,9 @@ Game::loadNextLevel()
 	LoadGame(levelFile);
 	levelFile.close();
 	++levelToLoad;
+
+	// Creamos las mariposas del siguiente nivel
+	createButterflies();
 	
 	// Actualizamos el número de flechas del arco
 	bow->updateArrows(arrows);

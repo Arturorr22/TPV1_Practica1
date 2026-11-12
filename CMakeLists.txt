@@ -77,6 +77,7 @@ add_executable(ProyectoSDL
 	src/gameobject.cpp
 	src/sceneobject.cpp
 	src/mobileobject.cpp
+	src/butterfly.cpp
 )
 
 # En Windows copia las DLL de SDL junto al .exe después de compilar

@@ -37,11 +37,15 @@ public:
 	static constexpr int WINDOW_WIDTH = 800;
 	static constexpr int WINDOW_HEIGHT = 600;
 
+	// Genera un número aleatorio entre min y max
+	float randomFloat(float min, float max);
+
 	enum TextureName {
 		BALLOON = 0,
 		ARROW,
 		BOW,
 		DIGITS,
+		BUTTERFLY,
 		NUM_TEXTURES
 	};
 
@@ -82,11 +86,14 @@ private:
 	static constexpr int DEFAULT_BALDELAY = 750;
 	static constexpr int DEFAULT_BALPOINTS = 10;
 	static constexpr int DEFAULT_GOAL = 0;
+	static constexpr int DEFAULT_BUTTERFLIES = 3;
 	static constexpr int MIN_BACKGROUND = 0;
+	static constexpr int MAX_BACKGROUND = 255;
 	static constexpr int MIN_ARROWS = 1;
 	static constexpr int MIN_BALDELAY = 1;
 	static constexpr int MIN_BALPOINTS = 1;
 	static constexpr int MIN_GOAL = 0;
+	static constexpr int MIN_BUTTERFLIES = 0;
 
 	// Constantes de renderizado
 	static constexpr Uint8 OPAQUE_ALPHA = 255;
@@ -110,6 +117,9 @@ private:
 	static constexpr float ARROW_OFFSET_DIV = 13.0f;
 	static constexpr float ARROW_SPEED = 0.1f;
 
+	//Butterflies
+	static constexpr float BUTTERFLY_WIDTH_DIV = 10.0f;
+
 	// Estado de la partida
 	bool exit;
 	Color backgroundColor;
@@ -119,6 +129,7 @@ private:
 	int goal;
 	int levelToLoad;
 	int playerPoints;
+	int numButterflies;
 
 	// Recursos y objetos de la escena
 	SDL_Window* window;
@@ -138,6 +149,7 @@ private:
 	void LoadGame(std::ifstream& file);
 	void addObject(SceneObject* obj);
 	void createBalloon();
+	void createButterflies();
 	void render() const;
 	void update();
 	void handleEvents();
