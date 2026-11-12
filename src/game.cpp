@@ -261,23 +261,18 @@ Game::createBalloon()
 	LastBalloonTime = SDL_GetTicks();
 }
 
-// Implementación del método randomFloat de la clase Game
-float Game::randomFloat(float min, float max) {
-	return uniform_real_distribution<float>(min, max)(generator);
-}
-
 void
 Game::createButterflies()
 {
 	// Calculamos el tamaño, igual para todas: el alto sale de la proporción del frame
-	const float width = WINDOW_WIDTH / BUTTERFLY_WIDTH_DIV;
-	const float height = width / textures[BUTTERFLY]->getAspectRatio();
+	float width = WINDOW_WIDTH / BUTTERFLY_WIDTH_DIV;
+	float height = width / textures[BUTTERFLY]->getAspectRatio();
 
 	for (int i = 0; i < numButterflies; ++i) {
 
 		// Posición aleatoria con la mariposa completa dentro de la ventana
-		const float posX = randomFloat(0.0f, WINDOW_WIDTH - width);
-		const float posY = randomFloat(0.0f, WINDOW_HEIGHT - height);
+		float posX = uniform_real_distribution<float>(0.0f, WINDOW_WIDTH - width)(generator);
+		float posY = uniform_real_distribution<float>(0.0f, WINDOW_HEIGHT - height)(generator);
 
 		// La dirección inicial la elige la propia mariposa
 		sceneObjects.push_back(new Butterfly(this, Rectangle({ posX, posY }, width, height),
