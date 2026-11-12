@@ -67,6 +67,9 @@ public:
 	// Aumenta los puntos del jugador según los puntos por globo explotado
 	void increasePoints();
 
+	// Disminuye los puntos del jugador
+	void decreasePoints();
+
 private:
 
 	struct Color {
@@ -90,10 +93,10 @@ private:
 	static constexpr int MIN_BACKGROUND = 0;
 	static constexpr int MAX_BACKGROUND = 255;
 	static constexpr int MIN_ARROWS = 1;
-	static constexpr int MAX_ARROWS = 7;
+	static constexpr int MAX_ARROWS = 20;
 	static constexpr int MIN_BALDELAY = 1;
-	static constexpr int MAX_BALDELAY = 100;
-	static constexpr int MAX_BALPOINTS = 10;	
+	static constexpr int MAX_BALDELAY = 1500;
+	static constexpr int MAX_BALPOINTS = 20;	
 	static constexpr int MIN_BALPOINTS = 1;
 	static constexpr int MIN_GOAL = 0;
 	static constexpr int MAX_GOAL = 1000;

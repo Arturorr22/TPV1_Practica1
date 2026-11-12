@@ -22,6 +22,7 @@ bool Butterfly::hit(const Rectangle& obj) {
 		return false;
 
 	// La mariposa muere y su cadáver pasa a caer a velocidad constante
+	game->decreasePoints();
 	dead = true;
 	speed = Vector2D<>(0.0f, FALL_SPEED);
 	return true;

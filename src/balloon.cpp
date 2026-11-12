@@ -14,6 +14,7 @@ bool Balloon::hit(const Rectangle& obj) {
     if (exploded || !SceneObject::hit(obj))
         return false;
 
+    game->increasePoints();
     exploded = true;
     return true;
 }

@@ -24,18 +24,9 @@ Rectangle Arrow::getArrowHeadRect() const {
 // Implementación del método update de la clase Arrow
 bool Arrow::update(const float delta) {
 
-	// MobileObject mueve la flecha y devuelve false si ha salido de la pantalla
-	bool active = MobileObject::update(delta);
+	game->checkCollision(getArrowHeadRect());
 
-	// Comprobamos si colisiona con algún objeto de la escena y, en ese caso, aumentamos
-	// los puntos del jugador
-	// Nota: los únicos objetos cuya colisión importa son los globos. El resto de objetos
-	// devolverán false 
-	if (game->checkCollision(getArrowHeadRect())) {
-		game->increasePoints();
-	}
-
-	return active;
+	return MobileObject::update(delta);
 }
 
 // Implementación del método hit de la clase Arrow

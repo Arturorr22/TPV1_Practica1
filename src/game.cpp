@@ -95,8 +95,8 @@ Game::Game()
 	LastBalloonTime = SDL_GetTicks();
 }
 
-Game::~Game()
-{
+Game::~Game() {
+
 	// Destruimos todos los objetos de la escena
 	auto it = sceneObjects.begin();
 	while (it != sceneObjects.end()) {
@@ -118,8 +118,7 @@ Game::~Game()
 }
 
 void
-Game::run()
-{
+Game::run() {
 	while (!exit) {
 
 		// Calculamos frameStart y despues frameEnd
@@ -144,8 +143,8 @@ Game::run()
 }
 
 void
-Game::createArrow(const Rectangle& bowRect)
-{
+Game::createArrow(const Rectangle& bowRect) {
+
 	// Creamos una flecha y la añadimos a la lista de objetos de la escena
 	// Antes de incorporarla a la lista, hacemos que el puntero lastArrow apunte a ella
 	lastArrow = new Arrow(this, Rectangle({0,
@@ -160,8 +159,8 @@ Game::createArrow(const Rectangle& bowRect)
 }
 
 bool
-Game::checkCollision(const Rectangle& rect)
-{
+Game::checkCollision(const Rectangle& rect) {
+
 	// Recorremos todos los objetos de la escena comprobando si se dan colisiones
 	auto it = sceneObjects.begin();
 	while (it != sceneObjects.end() && !(*it)->hit(rect)) {
@@ -171,10 +170,17 @@ Game::checkCollision(const Rectangle& rect)
 }
 
 void
-Game::increasePoints()
-{
+Game::increasePoints() {
 	playerPoints += balPoints;
 	infoBar->updatePlayerPoints(playerPoints);
+}
+
+void 
+Game::decreasePoints() {
+	if (playerPoints >= balPoints) {
+		playerPoints -= balPoints;
+		infoBar->updatePlayerPoints(playerPoints);
+	} 
 }
 
 // Lee un entero del fichero y comprueba que no sea menor que minValue.
