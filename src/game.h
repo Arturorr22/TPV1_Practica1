@@ -90,10 +90,15 @@ private:
 	static constexpr int MIN_BACKGROUND = 0;
 	static constexpr int MAX_BACKGROUND = 255;
 	static constexpr int MIN_ARROWS = 1;
+	static constexpr int MAX_ARROWS = 7;
 	static constexpr int MIN_BALDELAY = 1;
+	static constexpr int MAX_BALDELAY = 100;
+	static constexpr int MAX_BALPOINTS = 10;	
 	static constexpr int MIN_BALPOINTS = 1;
 	static constexpr int MIN_GOAL = 0;
+	static constexpr int MAX_GOAL = 1000;
 	static constexpr int MIN_BUTTERFLIES = 0;
+	static constexpr int MAX_BUTTERFLIES = 10;
 
 	// Constantes de renderizado
 	static constexpr Uint8 OPAQUE_ALPHA = 255;

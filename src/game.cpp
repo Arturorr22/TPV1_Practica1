@@ -179,9 +179,9 @@ Game::increasePoints()
 
 // Lee un entero del fichero y comprueba que no sea menor que minValue.
 // Si no es válido, lanza una excepción con el nombre de la palabra clave
-int readValue(std::ifstream& file, const string& name, int minValue) {
+int readValue(std::ifstream& file, const string& name, int minValue, int maxValue) {
 	int value;
-	if (!(file >> value) || value < minValue)
+	if (!(file >> value) || value < minValue || value > maxValue)
 		throw "No se pudo leer un numero valido para "s + name;
 	return value;
 }
@@ -206,15 +206,15 @@ Game::LoadGame(std::ifstream& file)
 		// Leemos la primera palabra de cada línea e intentamos almacenar el valor
 		// escrito después
 		if (keyword == "bgcolor") {
-			backgroundColor.r = readValue(file, keyword, MIN_BACKGROUND);
-			backgroundColor.g = readValue(file, keyword, MIN_BACKGROUND);
-			backgroundColor.b = readValue(file, keyword, MIN_BACKGROUND);
+			backgroundColor.r = readValue(file, keyword, MIN_BACKGROUND, MAX_BACKGROUND);
+			backgroundColor.g = readValue(file, keyword, MIN_BACKGROUND, MAX_BACKGROUND);
+			backgroundColor.b = readValue(file, keyword, MIN_BACKGROUND, MAX_BACKGROUND);
 		}
-		else if (keyword == "arrows") arrows = readValue(file, keyword, MIN_ARROWS);
-		else if (keyword == "baldelay") baldelay = readValue(file, keyword, MIN_BALDELAY);
-		else if (keyword == "balpoints") balPoints = readValue(file, keyword, MIN_BALPOINTS);
-		else if (keyword == "goal") goal = readValue(file, keyword, MIN_GOAL);
-		else if (keyword == "butterflies") numButterflies = readValue(file, keyword, MIN_BUTTERFLIES);
+		else if (keyword == "arrows") arrows = readValue(file, keyword, MIN_ARROWS, MAX_ARROWS);
+		else if (keyword == "baldelay") baldelay = readValue(file, keyword, MIN_BALDELAY, MAX_BALDELAY);
+		else if (keyword == "balpoints") balPoints = readValue(file, keyword, MIN_BALPOINTS, MAX_BALPOINTS);
+		else if (keyword == "goal") goal = readValue(file, keyword, MIN_GOAL, MAX_GOAL);
+		else if (keyword == "butterflies") numButterflies = readValue(file, keyword, MIN_BUTTERFLIES, MAX_BUTTERFLIES);
 		else file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
 
