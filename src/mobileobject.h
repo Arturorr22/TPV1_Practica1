@@ -17,6 +17,10 @@ class MobileObject : public SceneObject {
 
         // Sobreescritura del método update heredado de la clase GameObject
         bool update(const float delta) override;
+
+        // Sobreescritura del método saveObject heredado de la clase SceneObject
+        void saveObject(std::ostream& savedFile) const override;
+        
 };
 
 #endif

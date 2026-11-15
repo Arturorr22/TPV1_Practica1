@@ -1,4 +1,5 @@
 #include "arrow.h"
+#include "texture.h"
 #include "game.h"
 
 // Implementación del constructor de la clase Arrow
@@ -34,3 +35,25 @@ bool Arrow::update(const float delta) {
 bool Arrow::hit(const Rectangle&) {
 	return false;
 }
+
+// Implementación del método saveObject de la clase Arrow
+void Arrow::saveObject(std::ostream& savedFile) const {
+
+    // Escribimos una A mayúscula para indicar que se trata de una flecha
+    savedFile << "A ";
+
+    // Llamamos al método saveObject de MobileObject
+    MobileObject::saveObject(savedFile);
+
+	savedFile << "\n";
+}
+
+// Implementación del método loadObject de la clase Arrow
+Arrow* Arrow::loadObject(std::istream& savedFile, Game* game) {
+
+    float x, y, w, h, sX, sY;
+    savedFile >> x >> y >> w >> h >> sX >> sY;
+
+    return new Arrow(game, Rectangle({x, y}, w, h), game->getTexture(Game::ARROW), 
+		Vector2D(sX, sY));
+} 

@@ -1,17 +1,24 @@
 #include "butterfly.h"
 #include "game.h"
-
 #include <cmath>
+#include "texture.h"
+#include <format>
 
 // Implementación del constructor de la clase Butterfly
-Butterfly::Butterfly(Game* game, const Rectangle& rect, Texture* texture)
-	: MobileObject(game, rect, texture, Vector2D<>())
-	, timeSinceDirectionChange(0.0f)
-	, animationFrame(0)
-	, dead(false)
+Butterfly::Butterfly(Game* game, const Rectangle& rect, Texture* texture, 
+	const Vector2D<>& speed, const float timeSinceDirectionChange, 
+	const int animationFrame, const bool dead, std::mt19937_64& generator)
+	: MobileObject(game, rect, texture, speed)
+	, timeSinceDirectionChange(timeSinceDirectionChange)
+	, animationFrame(animationFrame)
+	, dead(dead)
+	, generator(generator)
+
+	// timeSinceDirectionChange(0.0f)
+	// , animationFrame(0)
+	// , dead(false)
 {
-	// La dirección inicial también es aleatoria
-	randomizeDirection();
+	if (timeSinceDirectionChange == 0.0f) randomizeDirection();
 }
 
 // Implementación del método hit de la clase Butterfly
@@ -32,7 +39,7 @@ bool Butterfly::hit(const Rectangle& obj) {
 void Butterfly::randomizeDirection() {
 
 	// Sorteamos un ángulo y lo convertimos en velocidad con el módulo fijo
-	const float angle = game->randomFloat(0.0f, TWO_PI);
+	const float angle = std::uniform_real_distribution<float>(0.0f, TWO_PI)(generator);
 	speed = Vector2D<>(FLIGHT_SPEED * std::cos(angle), FLIGHT_SPEED * std::sin(angle));
 }
 
@@ -82,4 +89,30 @@ bool Butterfly::update(const float delta) {
 	bounceOffBorders();
 	animationFrame = (animationFrame + 1) % FLIGHT_FRAMES;
 	return true;
+}
+
+// Implementación del método saveObject de la clase Balloon
+void Butterfly::saveObject(std::ostream& savedFile) const {
+
+    // Escribimos una b minúscula para indicar que se trata de un globo
+    savedFile << "f ";
+
+    // Llamamos al método saveObject de MobileObject
+    MobileObject::saveObject(savedFile);
+
+    // Añadimos los atributos propios del globo
+    savedFile << std::format("{} {} {}", timeSinceDirectionChange, 
+		animationFrame, dead ? 1 : 0) << "\n";
+}
+
+// Implementación del método loadObject de la clase Balloon
+Butterfly* Butterfly::loadObject(std::istream& savedFile, Game* game, std::mt19937_64& generator) {
+
+    float x, y, w, h, sX, sY, tSDC;
+    savedFile >> x >> y >> w >> h >> sX >> sY >> tSDC;
+	int aF, d;
+    savedFile >> aF >> d;
+
+    return new Butterfly(game, Rectangle({x, y}, w, h), game->getTexture(Game::BUTTERFLY), 
+        Vector2D(sX, sY), tSDC, aF, d == 1 ? true : false, generator);
 }

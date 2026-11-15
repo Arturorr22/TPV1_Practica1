@@ -11,16 +11,12 @@
 #define GAME_H
 
 #include <SDL3/SDL.h>
-
 #include <array>
-#include <fstream>
-#include <istream>
 #include <list>
 #include <random>
 
-#include "rectangle.h"
-
 class Texture;
+class Rectangle;
 class Bow;
 class SceneObject;
 class InfoBar;
@@ -36,9 +32,6 @@ public:
 	// Tamaño real de la ventana
 	static constexpr int WINDOW_WIDTH = 800;
 	static constexpr int WINDOW_HEIGHT = 600;
-
-	// Genera un número aleatorio entre min y max
-	float randomFloat(float min, float max);
 
 	enum TextureName {
 		BALLOON = 0,
@@ -83,25 +76,24 @@ private:
 	static constexpr const char* IMAGE_ROOT = "../assets/images/";
 	static constexpr const char* LEVEL_ROOT = "../assets/levels/";
 
-	// Valores por defecto y mínimos usados al cargar niveles
-	static constexpr Color DEFAULT_BACKGROUND = {0, 0, 0};
+	// Valores por defecto usados al cargar niveles
+	static constexpr Color DEFAULT_BACKGROUND = {135, 135, 10};
 	static constexpr int DEFAULT_ARROWS = 10;
-	static constexpr int DEFAULT_BALDELAY = 750;
+	static constexpr int DEFAULT_BALDELAY = 2000;
 	static constexpr int DEFAULT_BALPOINTS = 10;
+	static constexpr float DEFAULT_BALSPEED = 0.2f;
 	static constexpr int DEFAULT_GOAL = 0;
-	static constexpr int DEFAULT_BUTTERFLIES = 3;
-	static constexpr int MIN_BACKGROUND = 0;
-	static constexpr int MAX_BACKGROUND = 255;
-	static constexpr int MIN_ARROWS = 1;
-	static constexpr int MAX_ARROWS = 20;
-	static constexpr int MIN_BALDELAY = 1;
-	static constexpr int MAX_BALDELAY = 1500;
-	static constexpr int MAX_BALPOINTS = 20;	
-	static constexpr int MIN_BALPOINTS = 1;
-	static constexpr int MIN_GOAL = 0;
-	static constexpr int MAX_GOAL = 1000;
+	static constexpr int DEFAULT_BUTTERFLIES = 5;
+	
+	// Valores por mínimos y máximos usados al cargar niveles
+	static constexpr int MIN_BACKGROUND = -1;
+	static constexpr int MAX_BACKGROUND = 256;
+	static constexpr int MIN_ARROWS = 0;
+	static constexpr int MIN_BALDELAY = 0;
+	static constexpr int MIN_BALPOINTS = 0;
+	static constexpr int MIN_BALSPEED = 0;
+	static constexpr int MIN_GOAL = -1;
 	static constexpr int MIN_BUTTERFLIES = 0;
-	static constexpr int MAX_BUTTERFLIES = 10;
 
 	// Constantes de renderizado
 	static constexpr Uint8 OPAQUE_ALPHA = 255;
@@ -112,8 +104,6 @@ private:
 
 	// Globos
 	static constexpr int NUM_BALLOON_COLORS = 7;
-	static constexpr float MIN_BALLOON_SPEED = -0.05f;
-	static constexpr float MAX_BALLOON_SPEED = -0.02f;
 	static constexpr float BALLOON_MIN_X_DIV = 3.0f;
 	static constexpr float BALLOON_WIDTH_DIV = 6.25f;
 	static constexpr float BALLOON_HEIGHT_DIV = 4.7f;
@@ -123,7 +113,7 @@ private:
 	static constexpr float ARROW_WIDTH_DIV = 8.0f;
 	static constexpr float ARROW_HEIGHT_DIV = 40.0f;
 	static constexpr float ARROW_OFFSET_DIV = 13.0f;
-	static constexpr float ARROW_SPEED = 0.1f;
+	static constexpr float ARROW_SPEED = 0.4f;
 
 	//Butterflies
 	static constexpr float BUTTERFLY_WIDTH_DIV = 10.0f;
@@ -134,10 +124,15 @@ private:
 	int arrows;
 	int baldelay;
 	int balPoints;
+	float balSpeed;
 	int goal;
+	int numButterflies;
 	int levelToLoad;
 	int playerPoints;
-	int numButterflies;
+
+	// Guardado de niveles
+	int savedLevel;
+	int savedPoints;
 
 	// Recursos y objetos de la escena
 	SDL_Window* window;
@@ -162,6 +157,10 @@ private:
 	void update();
 	void handleEvents();
 	void loadNextLevel();
+	
+	// Guardan y cargan partidas
+	void saveGame() const;
+	void loadSavedGame();
 };
 
 inline Texture*

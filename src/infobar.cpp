@@ -1,4 +1,5 @@
 #include "infobar.h"
+#include "game.h"
 #include "texture.h"
 
 // Implementación del método constructor de la clase InfoBar

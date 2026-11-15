@@ -31,6 +31,12 @@ class Arrow : public MobileObject {
 
 		// Una flecha no es un objetivo: nunca recibe impactos (ni de sí misma)
 		bool hit(const Rectangle& obj) override;
+
+		// Sobreescritura del método saveObject heredado de la clase SceneObject
+        void saveObject(std::ostream& savedFile) const override;
+
+        // Método loadObject para cargar un globo en base a los datos guardados
+        static Arrow* loadObject(std::istream& savedFile, Game* game);
 };
 
 #endif // ARROW_H

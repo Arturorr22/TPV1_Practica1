@@ -2,6 +2,7 @@
 #define BUTTERFLY_H
 
 #include <numbers>
+#include <random>
 
 #include "mobileobject.h"
 
@@ -32,6 +33,8 @@ private:
 	// Indica si la mariposa ha sido alcanzada por una flecha
 	bool dead;
 
+	std::mt19937_64& generator;
+
 	// Elige una dirección aleatoria manteniendo el módulo de la velocidad
 	void randomizeDirection();
 
@@ -42,7 +45,9 @@ private:
 public:
 
 	// Constructor de la clase Butterfly. La dirección inicial es aleatoria
-	Butterfly(Game* game, const Rectangle& rect, Texture* texture);
+	Butterfly(Game* game, const Rectangle& rect, Texture* texture, 
+		const Vector2D<>& speed, const float timeSinceDirectionChange, 
+		const int animationFrame, const bool dead, std::mt19937_64& generator);
 
 	// Método hit de la clase Butterfly: la mariposa viva muere al recibir el impacto
 	bool hit(const Rectangle& obj) override;
@@ -52,6 +57,12 @@ public:
 
 	// Método update de la clase Butterfly
 	bool update(const float delta) override;
+
+	// Sobreescritura del método saveObject heredado de la clase SceneObject
+	void saveObject(std::ostream& savedFile) const override;
+
+	// Método loadObject para cargar una mariposa en base a los datos guardados
+	static Butterfly* loadObject(std::istream& savedFile, Game* game, std::mt19937_64& generator); 
 
 };
 

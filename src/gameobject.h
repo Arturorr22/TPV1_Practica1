@@ -1,7 +1,7 @@
 #ifndef GAMEOBJECT_H
 #define GAMEOBJECT_H
 
-#include "game.h"
+class Game;
 
 class GameObject {
     protected:

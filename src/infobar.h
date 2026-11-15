@@ -4,6 +4,8 @@
 #include "gameobject.h"
 #include "rectangle.h"
 
+class Texture;
+
 class InfoBar : public GameObject {
     private:
 

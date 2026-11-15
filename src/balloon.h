@@ -21,7 +21,8 @@ class Balloon : public MobileObject {
 
         // Constructor de la clase Balloon
         Balloon(Game* game, const Rectangle& rect, Texture* texture, 
-            const Vector2D<>& speed, const int color);
+            const Vector2D<>& speed, const int color, const bool exploded, 
+            const int animationFrame);
 
         // Método hit de la clase Balloon
         bool hit(const Rectangle& obj) override;
@@ -31,6 +32,12 @@ class Balloon : public MobileObject {
 
         // Método update de la clase Balloon
         bool update(const float delta) override;
+
+        // Sobreescritura del método saveObject heredado de la clase SceneObject
+        void saveObject(std::ostream& savedFile) const override;
+
+        // Método loadObject para cargar un globo en base a los datos guardados
+        static Balloon* loadObject(std::istream& savedFile, Game* game); 
 
 };
 
