@@ -17,6 +17,7 @@
 #include <istream>
 #include <list>
 #include <random>
+#include <string>
 
 #include "rectangle.h"
 
@@ -83,8 +84,12 @@ private:
 	static constexpr const char* IMAGE_ROOT = "../assets/images/";
 	static constexpr const char* LEVEL_ROOT = "../assets/levels/";
 
+	// Primer nivel del juego y mensaje que se muestra al superar el último
+	static constexpr int FIRST_LEVEL = 1;
+	static constexpr const char* VICTORY_MESSAGE = "Has superado todos los niveles. Victoria!";
+
 	// Valores por defecto y mínimos usados al cargar niveles
-	static constexpr Color DEFAULT_BACKGROUND = {0, 0, 0};
+	static constexpr Color DEFAULT_BACKGROUND = { 0, 0, 0 };
 	static constexpr int DEFAULT_ARROWS = 10;
 	static constexpr int DEFAULT_BALDELAY = 750;
 	static constexpr int DEFAULT_BALPOINTS = 10;
@@ -96,7 +101,7 @@ private:
 	static constexpr int MAX_ARROWS = 20;
 	static constexpr int MIN_BALDELAY = 1;
 	static constexpr int MAX_BALDELAY = 1500;
-	static constexpr int MAX_BALPOINTS = 20;	
+	static constexpr int MAX_BALPOINTS = 20;
 	static constexpr int MIN_BALPOINTS = 1;
 	static constexpr int MIN_GOAL = 0;
 	static constexpr int MAX_GOAL = 1000;
@@ -153,8 +158,20 @@ private:
 	uint64_t LastBalloonTime;
 	uint64_t nextBalloon;
 
-	// Carga los valores de un nivel
-	void LoadGame(std::ifstream& file);
+	// Inicialización y liberación de los recursos del juego
+	void initSDL();
+	void loadTextures();
+	void createInitialObjects();
+	void freeResources();
+
+	// Carga de niveles: ruta del fichero, comprobación de que existe, lectura del
+	// nivel y análisis de una línea de opciones
+	std::string levelPath(int level) const;
+	bool levelExists(int level) const;
+	void loadLevel(int level);
+	void readLevelOption(const std::string& keyword, std::istream& line,
+		const std::string& fileName, int lineNumber);
+
 	void addObject(SceneObject* obj);
 	void createBalloon();
 	void createButterflies();
