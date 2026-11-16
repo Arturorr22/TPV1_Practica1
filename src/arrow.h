@@ -39,8 +39,8 @@ class Arrow : public MobileObject {
 		// Sobreescritura del método saveObject heredado de la clase SceneObject
         void saveObject(std::ostream& savedFile) const override;
 
-        // Método loadObject para cargar un globo en base a los datos guardados
-        static Arrow* loadObject(std::istream& savedGameFile, Game* game, const int lineNumber);
+        // Método loadObject para cargar una flecha en base a los datos guardados
+        void loadObject(std::istream& savedGameFile, const int lineNumber) override;
 };
 
 #endif // ARROW_H

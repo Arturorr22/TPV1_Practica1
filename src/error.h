@@ -29,15 +29,10 @@ public:
 	}
 };
 
-// Error al leer un archivo de datos del juego. Almacena y muestra el nombre del
+// Error al leer un archivo de datos del juego. El mensaje incluye el nombre del
 // archivo, la línea del error y su descripción.
 class FileFormatError : public GameError {
 private:
-
-	// Archivo y línea (empezando en 1) donde se produjo el error
-	std::string fileName;
-	int lineNumber;
-
 	// Compone el mensaje que se almacena en GameError.
 	static std::string buildMessage(const std::string& fileName, int lineNumber,
 		const std::string& message) {
@@ -48,14 +43,6 @@ private:
 public:
 
 	FileFormatError(const std::string& fileName, int lineNumber, const std::string& message)
-		: GameError(buildMessage(fileName, lineNumber, message))
-		, fileName(fileName)
-		, lineNumber(lineNumber) {
+		: GameError(buildMessage(fileName, lineNumber, message)) {
 	}
-
-	// Nombre del archivo donde se produjo el error
-	const std::string& getFileName() const { return fileName; }
-
-	// Número de línea donde se produjo el error
-	int getLineNumber() const { return lineNumber; }
 };

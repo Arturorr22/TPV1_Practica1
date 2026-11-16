@@ -22,9 +22,8 @@ class MobileObject : public SceneObject {
         // Sobreescritura del método saveObject heredado de la clase SceneObject
         void saveObject(std::ostream& savedFile) const override;
         
-        // Método estático que comprueba si el rectángulo leido es válido
-        // En caso de así serlo, lo devuelve
-        static Vector2D<> loadObject(std::istream& savedGameFile, const int lineNumber);
+        // Método que carga los datos de un MobileObject ya existente
+        void loadObject(std::istream& savedGameFile, const int lineNumber) override;
 
     protected:
 

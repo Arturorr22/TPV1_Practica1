@@ -86,10 +86,10 @@ void Bow::saveObject(std::ostream& savedFile) const {
 }
 
 // Implementación de la sobreescritura del método loadObject
-Bow* Bow::loadObject(std::istream& savedGameFile, Game* game, const int lineNumber) {
+void Bow::loadObject(std::istream& savedGameFile, const int lineNumber) {
 
     // Llamamos al loadObject de SceneObject para comprobar que sea válido
-    Rectangle rect = SceneObject::loadObject(savedGameFile, lineNumber);
+    SceneObject::loadObject(savedGameFile, lineNumber);
 
     // Leemos los datos propios del arco
     int arrowCount, loadedFlag;
@@ -100,6 +100,7 @@ Bow* Bow::loadObject(std::istream& savedGameFile, Game* game, const int lineNumb
         throw FileFormatError("saved.txt", lineNumber, "Formato inválido del arco.");
     }
 
-    // Creamos un arco y lo pasamos por referencia
-    return new Bow(game, rect, game->getTexture(Game::BOW), arrowCount, loadedFlag == 1);
+    // Modificamos los valores restantes del arco
+    numArrows = arrowCount;
+    loaded = (loadedFlag == 1 ? true : false);
 }

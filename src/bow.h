@@ -53,7 +53,7 @@ class Bow : public SceneObject {
         void saveObject(std::ostream& savedFile) const override;
 
         // Método loadObject para cargar un arco en base a los datos guardados 
-        static Bow* loadObject(std::istream& savedGameFile, Game* game, const int lineNumber);
+        void loadObject(std::istream& savedGameFile, const int lineNumber) override;
 
 };
 

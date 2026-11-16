@@ -55,22 +55,22 @@ void Balloon::saveObject(std::ostream& savedFile) const {
 }
 
 // Implementación del método loadObject de la clase Balloon
-Balloon* Balloon::loadObject(std::istream& savedGameFile, Game* game, const int lineNumber) {
+void Balloon::loadObject(std::istream& savedGameFile, const int lineNumber) {
 
     // Leemos los datos del MobileObject
-    Rectangle rect = SceneObject::loadObject(savedGameFile, lineNumber);
-    Vector2D speed = MobileObject::loadObject(savedGameFile, lineNumber);
+    MobileObject::loadObject(savedGameFile, lineNumber);
 
     // Leemos los datos propios del globo
     int colorIndex, explodedFlag, animationFrame;
 
-    if (!(savedGameFile >> colorIndex >> explodedFlag >> animationFrame) || speed.getX() != 0
-        || speed.getY() >= 0 || colorIndex < 0 || colorIndex > COLORS || (explodedFlag != 0 && explodedFlag != 1) 
+    if (!(savedGameFile >> colorIndex >> explodedFlag >> animationFrame) || MobileObject::getSpeed().getX() != 0
+        || MobileObject::getSpeed().getY() >= 0 || colorIndex < 0 || colorIndex > COLORS || (explodedFlag != 0 && explodedFlag != 1) 
         || animationFrame < 0 || animationFrame >= EXPLOSION_FRAMES) {
         throw FileFormatError("saved.txt", lineNumber, "Formato inválido del globo.");
     }
 
     // Devolvemos el globo
-    return new Balloon(game, rect, game->getTexture(Game::BALLOON), speed, colorIndex, explodedFlag == 1, 
-        animationFrame);
+    color = colorIndex;
+    exploded = (explodedFlag == 1 ? true : false);
+    this->animationFrame = animationFrame;
 } 

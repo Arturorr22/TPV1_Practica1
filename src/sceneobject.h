@@ -28,9 +28,8 @@ class SceneObject : public GameObject {
         // un objeto de la clase que son vitales para su recreación
         virtual void saveObject(std::ostream& savedFile) const; 
 
-        // Método estático que comprueba si el rectángulo leido es válido
-        // En caso de así serlo, lo devuelve
-        static Rectangle loadObject(std::istream& savedGameFile, const int lineNumber);
+        // Carga los datos de un SceneObject ya existente
+        virtual void loadObject(std::istream& savedGameFile, const int lineNumber);
         
     protected:
 

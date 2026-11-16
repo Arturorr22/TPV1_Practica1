@@ -144,20 +144,31 @@ private:
 	uint64_t LastBalloonTime;
 	uint64_t nextBalloon;
 
+	// Método usado para la carga de niveles
+	std::ifstream getLevelFile(const std::string& FileName);
+
 	// Liberación de recursos
+	void clearSceneObjects();
 	void freeResources();
 
+	// Método que reinicia los temporizadores de los globos
+	void resetBalloonTimer();
+
+	// Método que actualiza la barra de información
+	void refreshInfoBar();
+
 	void addObject(SceneObject* obj);
+	void createBow();
 	void createBalloon();
 	void createButterflies();
 	void render() const;
 	void update();
 	void handleEvents();
-	void loadGame(std::ifstream& file, const std::string& fileName);
+	void loadGame(std::ifstream file, const std::string& fileName);
 	void loadNextLevel();
 	
 	// Guardan y cargan partidas
-	void saveGame() const;
+	void saveGame();
 	void loadSavedGame();
 };
 

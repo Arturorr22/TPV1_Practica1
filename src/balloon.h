@@ -38,7 +38,7 @@ class Balloon : public MobileObject {
         void saveObject(std::ostream& savedFile) const override;
 
         // Método loadObject para cargar un globo en base a los datos guardados
-        static Balloon* loadObject(std::istream& savedGameFile, Game* game, const int lineNumber);
+        void loadObject(std::istream& savedGameFile, const int lineNumber) override;
 
 };
 

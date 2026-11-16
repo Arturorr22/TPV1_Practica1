@@ -24,7 +24,7 @@ void SceneObject::saveObject(std::ostream& savedFile) const {
 }
 
 // Implementación del método loadObject de la clase SceneObject
-Rectangle SceneObject::loadObject(std::istream& savedGameFile, const int lineNumber) {
+void SceneObject::loadObject(std::istream& savedGameFile, const int lineNumber) {
 
     // Leemos los datos del rectángulo
     float positionX, positionY, width, height;
@@ -36,8 +36,8 @@ Rectangle SceneObject::loadObject(std::istream& savedGameFile, const int lineNum
         throw FileFormatError("saved.txt", lineNumber, "Formato inválido del rectángulo.");
     }
 
-    // Devolvemos el rectangulo resultado
-    return Rectangle({positionX, positionY}, width, height);
+    // Modificamos el rectángulo
+    rect = Rectangle({positionX, positionY}, width, height);
 }
 
 // Implementación de los getters y moveRect

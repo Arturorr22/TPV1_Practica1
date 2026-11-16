@@ -13,9 +13,6 @@ class InfoBar : public GameObject {
         static constexpr int SIZE_DIVISOR = 20;
         static constexpr int DIGIT_ROW = 0;
 
-        // Dimensiones y posición de la barra de flechas representada por un rectángulo
-        Rectangle arrowsBarRect;
-
         // Punteros a la textura de la flecha y de los dígitos
         Texture* arrowTexture;
         Texture* digitsTexture;

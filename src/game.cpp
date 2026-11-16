@@ -8,7 +8,6 @@
 #include "error.h"
 
 #include <fstream>
-#include <sstream>
 #include <string>
 
 using namespace std;
@@ -28,6 +27,15 @@ constexpr array<TextureSpec, Game::NUM_TEXTURES> textureList {
 	{"digits.png", 1, 10},
 	{"butterfly.png", 4, 10},
 };
+
+// Método que devuelve el archivo "level.txt" si existe
+// En caso de que no existe, lanza una excepción
+std::ifstream Game::getLevelFile(const std::string& fileName) {
+	ifstream levelFile(fileName);
+	if (!levelFile.is_open())
+		throw FileNotFoundError(fileName);
+	return levelFile;
+}
 
 // Implementación del constructor de la clase Game
 Game::Game()
@@ -53,22 +61,15 @@ Game::Game()
 		// Leemos el nivel 1
 		levelToLoad = 1;
 		const string levelFileName = string(LEVEL_ROOT) + to_string(levelToLoad) + ".txt";
-		ifstream levelFile(levelFileName);
-		if (!levelFile.is_open())
-			throw FileNotFoundError(levelFileName);
-		loadGame(levelFile, levelFileName);
+		loadGame(getLevelFile(levelFileName), levelFileName);
 		++levelToLoad;
 	}
 	catch (...) {
 		
-		// Liberamos los recursos creados antes del fallo
-		for (std::size_t i = 0; i < textures.size(); ++i)
-			delete textures[i];
-		if (renderer != nullptr) SDL_DestroyRenderer(renderer);
-		if (window != nullptr) SDL_DestroyWindow(window);
-		SDL_Quit();
+		// Liberamos todos los recursos
+		freeResources();
 		
-		// Relanza la excepción
+		// Relanzamos la excepción
 		throw;
 	}
 	
@@ -76,11 +77,7 @@ Game::Game()
 	playerPoints = 0;
 
 	// Creamos el arco
-	bow = new Bow(this, Rectangle({ 0, (float)(WINDOW_HEIGHT / 2 - WINDOW_HEIGHT / BOW_HEIGHT_DIV) },
-		WINDOW_WIDTH / BOW_WIDTH_DIV, WINDOW_HEIGHT / BOW_HEIGHT_DIV), textures[BOW], arrows, false);
-
-	// Añadimos el arco a la lista de SceneObjects
-	addObject(bow);
+	createBow();
 
 	// Creamos la infoBar con sus respectivos datos
 	infoBar = new InfoBar(this, textures[ARROW], textures[DIGITS], bow->getArrows(), playerPoints);
@@ -91,11 +88,18 @@ Game::Game()
 	// Creamos las mariposas
 	createButterflies();
 
-	// Calculamos el tiempo que ha de pasar hasta que aparezca el primer globo
-	nextBalloon = exponential_distribution<double>(BALLOONS_PER_DELAY / baldelay)(generator);
+	// Reiniciamos los temporizadores de los globos
+	resetBalloonTimer();
+}
 
-	// Almacenamos el tiempo actual al iniciar el programa en la variable LastBalloonTime
-	LastBalloonTime = SDL_GetTicks();
+// Método que destruye todos los objetos de la escena
+void
+Game::clearSceneObjects() {
+	auto it = sceneObjects.begin();
+	while (it != sceneObjects.end()) {
+		delete *it;
+		it = sceneObjects.erase(it);
+	}
 }
 
 // Implementación del destructor de la clase Game
@@ -109,15 +113,13 @@ void
 Game::freeResources()
 {
 	// Destruimos todos los objetos de la escena
-	auto it = sceneObjects.begin();
-	while (it != sceneObjects.end()) {
-		delete *it;
-		it = sceneObjects.erase(it);
-	}
+	clearSceneObjects();
 
 	// Borramos la infoBar
-	delete infoBar;
-	infoBar = nullptr;
+	if (infoBar != nullptr) {
+		delete infoBar;
+		infoBar = nullptr;
+	}
 
 	// Destruimos las texturas
 	for (int i = 0; i < textures.size(); ++i) {
@@ -157,6 +159,32 @@ Game::run() {
 			SDL_Delay(FRAME_PERIOD - (frameEnd - frameStart));
 		}
 	}
+}
+
+// Método que reinicia los temporizadores de los globos
+void 
+Game::resetBalloonTimer() {
+
+	// Recalculamos el valor hasta el siguiente globo
+	nextBalloon = exponential_distribution<double>(BALLOONS_PER_DELAY / baldelay)(generator);
+
+	// Actualizamos el valor de LastBalloonTime
+	LastBalloonTime = SDL_GetTicks();
+}
+
+// Implementación del método refreshInfoBar
+void
+Game::refreshInfoBar() {
+	infoBar->updateArrows(bow->getArrows());
+	infoBar->updatePlayerPoints(playerPoints);
+}
+
+// Crea el arco y lo añade a la lista de objetos de la escena
+void
+Game::createBow() {
+	bow = new Bow(this, Rectangle({ 0, (float)(WINDOW_HEIGHT / 2 - WINDOW_HEIGHT / BOW_HEIGHT_DIV) },
+		WINDOW_WIDTH / BOW_WIDTH_DIV, WINDOW_HEIGHT / BOW_HEIGHT_DIV), textures[BOW], arrows, false);
+	addObject(bow);
 }
 
 // Implementación del método createArrow de la clase Game
@@ -226,7 +254,7 @@ float readValue(std::ifstream& file, const string& name, const int line, const i
 
 // Implementación del método LoadGame
 void
-Game::loadGame(std::ifstream& file, const std::string& fileName)
+Game::loadGame(std::ifstream file, const std::string& fileName)
 {
 	// Asignamos unos valores por defecto a los atributos de Game por si el archivo
 	// no los modifica
@@ -259,6 +287,9 @@ Game::loadGame(std::ifstream& file, const std::string& fileName)
 		else file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		++lineNumber;
 	}
+
+	// Cerramos el archivo
+	file.close();
 }
 
 // Implementación del método addObject de la clase Game
@@ -286,11 +317,7 @@ Game::createBalloon() {
 		WINDOW_WIDTH / BALLOON_WIDTH_DIV, WINDOW_HEIGHT / BALLOON_HEIGHT_DIV), 
 		textures[BALLOON], Vector2D<>(0, -speedY), color, false, 0));
 
-	// Recalculamos el valor hasta el siguiente globo
-	nextBalloon = exponential_distribution<double>(BALLOONS_PER_DELAY / baldelay)(generator);
-
-	// Actualizamos el valor de LastBalloonTime
-	LastBalloonTime = SDL_GetTicks();
+	resetBalloonTimer();
 }
 
 // Implementación del método createButterflies de la clase Game
@@ -392,54 +419,51 @@ void
 Game::loadNextLevel()
 {
 	const string levelFileName = string(LEVEL_ROOT) + to_string(levelToLoad) + ".txt";
-	ifstream levelFile(levelFileName);
-	if (!levelFile.is_open()) {
-		cout << "Has ganado. Felicidades!\n";
-		exit = true;
-	}
-	else {
-		loadGame(levelFile, levelFileName);
-		++levelToLoad;
 	
+	// Intentamos cargar el archivo del nivel a cargar
+	// Si al hacerlo, no se encuentra el archivo, declaramos victorioso al jugador
+	try {
+
+		loadGame(getLevelFile(levelFileName), levelFileName);
+		
 		// Borramos todos los objetos de la escena antes de pasar al siguiente nivel
-		// (exceptuando el arco)
-		auto it = sceneObjects.begin();
-		while (it != sceneObjects.end()) {
-			delete *it;
-			it = sceneObjects.erase(it);
-		}
+		clearSceneObjects();
 		lastArrow = nullptr;
-	
+		
 		// Fijamos los puntos del jugador a 0
 		playerPoints = 0;
 	
 		// Creamos el arco
-		bow = new Bow(this, Rectangle({ 0, (float)(WINDOW_HEIGHT / 2 - WINDOW_HEIGHT / BOW_HEIGHT_DIV) },
-			WINDOW_WIDTH / BOW_WIDTH_DIV, WINDOW_HEIGHT / BOW_HEIGHT_DIV), textures[BOW], arrows, false);
-	
-		// Añadimos el arco a la lista de SceneObjects
-		addObject(bow);
+		createBow();
 	
 		// Creamos las mariposas del siguiente nivel
 		createButterflies();
 	
 		// Actualizamos la infoBar
-		infoBar->updateArrows(bow->getArrows());
-		infoBar->updatePlayerPoints(playerPoints);
+		refreshInfoBar();
+		
+		++levelToLoad;
+	}
+	catch (FileNotFoundError) {
+		cout << "Has ganado. Felicidades!\n";
+		exit = true;
 	}
 }
 
 // Implementación del método saveGame de la clase Game
 void
-Game::saveGame() const {
+Game::saveGame() {
+
+	// Guardamos el nivel en el que se encuentra el jugador, los puntos que tiene y el número de mariposas
+	// que habia
+	savedLevel = levelToLoad - 1;
+	savedPoints = playerPoints;
+	savedButterflies = numButterflies;
 
 	// Creamos el archivo de guardado
 	ofstream savedFile("saved.txt");
-	
-	// Guardamos el nivel en el que se encuentra el jugador y los puntos que tiene
-	savedFile << levelToLoad - 1 << '\n' << playerPoints << '\n' << numButterflies << "\n";
 
-	// Guardamos cada objeto
+	// Guardamos cada objeto en el archivo
 	for (auto it = sceneObjects.begin(); it != sceneObjects.end(); ++it)
 		(*it)->saveObject(savedFile);
 
@@ -455,25 +479,9 @@ Game::loadSavedGame() {
 	if (!savedFile.is_open())
 		throw FileNotFoundError("saved.txt");
 
-	// Leemos los valores de savedLevel y savedPoints
-	if (!(savedFile >> savedLevel)) {
-		throw FileFormatError("saved.txt", 1, "Nivel de guardado en formato inválido.");
-	}
-	if (!(savedFile >> savedPoints)) {
-		throw FileFormatError("saved.txt", 2, "Puntos del jugador en formato inválido.");
-	}
-	if (!(savedFile >> savedButterflies)) {
-		throw FileFormatError("saved.txt", 3, "Número de mariposas en formato inválido.");
-	}
-
-	// Leemos los datos del nivel correspondiente al guardado
+	// Leemos los datos del nivel en el que el jugador se encontraba cuando guardo
 	const string levelFileName = string(LEVEL_ROOT) + to_string(savedLevel) + ".txt";
-	ifstream levelFile(levelFileName);
-	if (!levelFile.is_open()) {
-		throw FileNotFoundError(levelFileName);
-	}
-	loadGame(levelFile, levelFileName);
-	levelFile.close();
+	loadGame(getLevelFile(levelFileName), levelFileName);
 
 	// Actualizamos los datos en base a la carga de la partida
 	levelToLoad = savedLevel + 1;
@@ -481,50 +489,37 @@ Game::loadSavedGame() {
 	numButterflies = savedButterflies;
 
 	// Eliminamos todos los objetos de la escena
-	auto it = sceneObjects.begin();
-	while (it != sceneObjects.end()) {
-		delete *it;
-		it = sceneObjects.erase(it);
-	}
+	clearSceneObjects();
 	bow = nullptr;
 	lastArrow = nullptr;
 
 	// Leemos todos los objetos
+	// Primero crearemos un objeto de dicha clase, para posteriormente modificarlo con los datos leidos
 	char c;
 	int lineNumber = 4;
+	SceneObject* obj;
 	while (savedFile >> c) {
-		switch (c) {
-		case 'B':
-			if (bow != nullptr) {
-				throw FileFormatError("saved.txt", lineNumber, "Existencia de dos arcos.");
-			}
-			bow = Bow::loadObject(savedFile, this, lineNumber);
-			addObject(bow);
-			break;
-		case 'b':
-			addObject(Balloon::loadObject(savedFile, this, lineNumber));
-			break;
-		case 'A':
-			lastArrow = Arrow::loadObject(savedFile, this, lineNumber);
-			addObject(lastArrow);
-			break;
-		case 'f':
-			addObject(Butterfly::loadObject(savedFile, this, generator, lineNumber));
-			break;
-		default:
-			throw FileFormatError("saved.txt", lineNumber, "Incoherencia en formato.");
+		if (c == 'B') {
+			if (bow != nullptr) throw FileFormatError("saved.txt", lineNumber, "Existencia de dos arcos.");
+			obj = bow = new Bow(this, Rectangle(), textures[BOW], 0, false);
 		}
+		else if (c == 'b') obj = new Balloon(this, Rectangle(), textures[BALLOON], Vector2D(), 0, false, 0);
+		else if (c == 'A') obj = lastArrow = new Arrow(this, Rectangle(), textures[ARROW], Vector2D(), 0);
+		else if (c == 'f') obj = new Butterfly(this, Rectangle(), textures[BUTTERFLY], Vector2D(), 0.0f, 0, false, generator);
+		else throw FileFormatError("saved.txt", lineNumber, "Incoherencia en formato.");
+		obj->loadObject(savedFile, lineNumber);
+		addObject(obj);
 		++lineNumber;
 	}
 
-	if (bow == nullptr) {
-		throw FileFormatError("saved.txt", lineNumber, "Arco no encontrado.");
-	}
+	// Si no se ha leido ningun arco, lo notificamos
+	if (bow == nullptr) throw FileFormatError("saved.txt", lineNumber, "Arco no encontrado.");
 
-	// Actualizamos el estado del juego
-	infoBar->updateArrows(bow->getArrows());
-	infoBar->updatePlayerPoints(playerPoints);
-	LastBalloonTime = SDL_GetTicks();
-	nextBalloon = exponential_distribution<double>(BALLOONS_PER_DELAY / baldelay)(generator);
+	// Actualizamos la barra de información
+	refreshInfoBar();
+	
+	// Reiniciamos los temporizadores de los globos
+	resetBalloonTimer();
+
 	savedFile.close();
 }

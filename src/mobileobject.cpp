@@ -31,7 +31,10 @@ void MobileObject::saveObject(std::ostream& savedFile) const {
 }
 
 // Implementación del método loadObject de la clase MobileObject
-Vector2D<> MobileObject::loadObject(std::istream& savedGameFile, const int lineNumber) {
+void MobileObject::loadObject(std::istream& savedGameFile, const int lineNumber) {
+
+    // Modificamos el rectángulo
+    SceneObject::loadObject(savedGameFile, lineNumber);
 
     // Leemos los datos de la velocidad
     float speedX, speedY;
@@ -41,8 +44,8 @@ Vector2D<> MobileObject::loadObject(std::istream& savedGameFile, const int lineN
         throw FileFormatError("saved.txt", lineNumber, "Formato inválido del vector velocidad.");
     }
 
-    // Devolvemos el vector velocidad deseado
-    return Vector2D<>(speedX, speedY);
+    // Modificamos la velocidad
+    speed = Vector2D<>(speedX, speedY);
 }
 
 // Implementación del getter de la velocidad

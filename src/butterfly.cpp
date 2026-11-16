@@ -88,27 +88,25 @@ bool Butterfly::update(const float delta) {
 	return true;
 }
 
-// Implementación del método saveObject de la clase Balloon
+// Implementación del método saveObject de la clase Butterfly
 void Butterfly::saveObject(std::ostream& savedFile) const {
 
-    // Escribimos una b minúscula para indicar que se trata de un globo
+    // Escribimos una f minúscula para indicar que se trata de una mariposa
     savedFile << "f ";
 
     // Llamamos al método saveObject de MobileObject
     MobileObject::saveObject(savedFile);
 
-    // Añadimos los atributos propios del globo
+    // Añadimos los atributos propios de la mariposa
     savedFile << std::format("{} {} {}", timeSinceDirectionChange, 
 		animationFrame, dead ? 1 : 0) << "\n";
 }
 
-// Implementación del método loadObject de la clase Balloon
-Butterfly* Butterfly::loadObject(std::istream& savedGameFile, Game* game,
-	std::mt19937_64& generator, const int lineNumber) {
+// Implementación del método loadObject de la clase Butterfly
+void Butterfly::loadObject(std::istream& savedGameFile, const int lineNumber) {
 
 	// Leemos los datos del MobileObject
-	Rectangle rect = SceneObject::loadObject(savedGameFile, lineNumber);
-    Vector2D speed = MobileObject::loadObject(savedGameFile, lineNumber);
+	MobileObject::loadObject(savedGameFile, lineNumber);
 
 	// Leemos los datos propios de la mariposa
     float directionChangeTimer;
@@ -120,7 +118,8 @@ Butterfly* Butterfly::loadObject(std::istream& savedGameFile, Game* game,
 		throw FileFormatError("saved.txt", lineNumber, "Formato inválido de la mariposa.");
 	}
 	
-	// Devolvemos la mariposa
-    return new Butterfly(game, rect, game->getTexture(Game::BUTTERFLY), speed, directionChangeTimer, 
-		animationFrame, deadFlag == 1, generator);
+	// Modificamos los datos propios de la mariposa
+    timeSinceDirectionChange = directionChangeTimer;
+	this->animationFrame = animationFrame;
+	dead = (deadFlag == 1 ? true : false); 
 }

@@ -62,8 +62,7 @@ public:
 	void saveObject(std::ostream& savedFile) const override;
 
 	// Método loadObject para cargar una mariposa en base a los datos guardados
-	static Butterfly* loadObject(std::istream& savedGameFile, Game* game,
-		std::mt19937_64& generator, const int lineNumber);
+	void loadObject(std::istream& savedGameFile, const int lineNumber) override;
 
 };
 

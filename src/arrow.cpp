@@ -56,19 +56,19 @@ void Arrow::saveObject(std::ostream& savedFile) const {
 }
 
 // Implementación del método loadObject de la clase Arrow
-Arrow* Arrow::loadObject(std::istream& savedGameFile, Game* game, const int lineNumber) {
+void Arrow::loadObject(std::istream& savedGameFile, const int lineNumber) {
 
 	// Leemos los datos del MobileObject
-    Rectangle rect = SceneObject::loadObject(savedGameFile, lineNumber);
-    Vector2D speed = MobileObject::loadObject(savedGameFile, lineNumber);
+    MobileObject::loadObject(savedGameFile, lineNumber);
 
 	// Leemos los datos propios de la flecha
 	int balloons;
 
-	if (!(savedGameFile >> balloons) || speed.getX() <= 0 || speed.getY() != 0 || balloons < 0) {
+	if (!(savedGameFile >> balloons) || MobileObject::getSpeed().getX() <= 0 
+		|| MobileObject::getSpeed().getY() != 0 || balloons < 0) {
 		throw FileFormatError("saved.txt", lineNumber, "Formato inválido de la flecha.");
 	}
 
-	// Devolvemos la flecha
-    return new Arrow(game, rect, game->getTexture(Game::ARROW), speed, balloons);
+	// Modificamos los valores restantes de la flecha
+    this->balloons = balloons;
 } 
