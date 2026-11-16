@@ -1,19 +1,12 @@
-// Dependencias circulares
-// Meter toda la gestion de exit en update
-// Crear LISTA de SceneObjects
-// Ordenar las propiedades de Game en base al momento en el que se usan
-// Comprobar si hay variables que podría quitar
-// Correo Rubén
-// Preguntar por prácticas de #include's
-// Revisar soltar teclas en handleEvents
-
 #ifndef GAME_H
 #define GAME_H
 
 #include <SDL3/SDL.h>
 #include <array>
+#include <fstream>
 #include <list>
 #include <random>
+#include <string>
 
 class Texture;
 class Rectangle;
@@ -58,9 +51,9 @@ public:
 	bool checkCollision(const Rectangle& rect);
 
 	// Aumenta los puntos del jugador según los puntos por globo explotado
-	void increasePoints();
+	void increasePoints(const int balloons);
 
-	// Disminuye los puntos del jugador
+	// Disminuye el número de mariposas y, si es posible, el número de puntos
 	void decreasePoints();
 
 private:
@@ -85,13 +78,13 @@ private:
 	static constexpr int DEFAULT_GOAL = 0;
 	static constexpr int DEFAULT_BUTTERFLIES = 5;
 	
-	// Valores por mínimos y máximos usados al cargar niveles
+	// Límites usados al validar los valores de los niveles
 	static constexpr int MIN_BACKGROUND = -1;
 	static constexpr int MAX_BACKGROUND = 256;
 	static constexpr int MIN_ARROWS = 0;
 	static constexpr int MIN_BALDELAY = 0;
-	static constexpr int MIN_BALPOINTS = 0;
-	static constexpr int MIN_BALSPEED = 0;
+	static constexpr int MIN_BALPOINTS = -1;
+	static constexpr float MIN_BALSPEED = 0.0f;
 	static constexpr int MIN_GOAL = -1;
 	static constexpr int MIN_BUTTERFLIES = 0;
 
@@ -104,6 +97,8 @@ private:
 
 	// Globos
 	static constexpr int NUM_BALLOON_COLORS = 7;
+	static constexpr float MIN_GENERATOR_BALSPEED = 0.75;
+	static constexpr float MAX_GENERATOR_BALSPEED = 1.25;
 	static constexpr float BALLOON_MIN_X_DIV = 3.0f;
 	static constexpr float BALLOON_WIDTH_DIV = 6.25f;
 	static constexpr float BALLOON_HEIGHT_DIV = 4.7f;
@@ -133,29 +128,32 @@ private:
 	// Guardado de niveles
 	int savedLevel;
 	int savedPoints;
+	int savedButterflies;
 
 	// Recursos y objetos de la escena
-	SDL_Window* window;
-	SDL_Renderer* renderer;
+	SDL_Window* window = nullptr;
+	SDL_Renderer* renderer = nullptr;
 	std::array<Texture*, NUM_TEXTURES> textures;
-	Bow* bow;
+	Bow* bow = nullptr;
 	std::list<SceneObject*> sceneObjects;
-	SceneObject* lastArrow;
-	InfoBar* infoBar;
+	SceneObject* lastArrow = nullptr;
+	InfoBar* infoBar = nullptr;
 
 	// Generador y temporizadores
 	std::mt19937_64 generator;
 	uint64_t LastBalloonTime;
 	uint64_t nextBalloon;
 
-	// Carga los valores de un nivel
-	void LoadGame(std::ifstream& file);
+	// Liberación de recursos
+	void freeResources();
+
 	void addObject(SceneObject* obj);
 	void createBalloon();
 	void createButterflies();
 	void render() const;
 	void update();
 	void handleEvents();
+	void loadGame(std::ifstream& file, const std::string& fileName);
 	void loadNextLevel();
 	
 	// Guardan y cargan partidas

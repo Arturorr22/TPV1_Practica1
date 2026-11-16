@@ -1,6 +1,7 @@
 #include "mobileobject.h"
 #include "game.h"
 #include <format>
+#include "error.h"
 
 // Implementación del constructor de la clase MobileObject
 MobileObject::MobileObject(Game* game, const Rectangle& rect, Texture* texture, 
@@ -11,9 +12,9 @@ MobileObject::MobileObject(Game* game, const Rectangle& rect, Texture* texture,
 
 // Implementación del método update de la clase MobileObject
 bool MobileObject::update(const float delta) {
-    rect.move(speed * delta);
-    if ((rect.getTopLeftCorner().getY() + rect.getHeight()) < 0 || 
-        rect.getTopLeftCorner().getX() > Game::WINDOW_WIDTH) {
+    SceneObject::moveRect(speed * delta);
+    if ((SceneObject::getRect().getTopLeftCorner().getY() + SceneObject::getRect().getHeight()) < 0 || 
+        SceneObject::getRect().getTopLeftCorner().getX() > Game::WINDOW_WIDTH) {
             return false;
     }
     return true;
@@ -27,4 +28,29 @@ void MobileObject::saveObject(std::ostream& savedFile) const {
 
     // Escribimos en el archivo la velocidad del objeto
     savedFile << std::format("{} {} ", speed.getX(), speed.getY());
+}
+
+// Implementación del método loadObject de la clase MobileObject
+Vector2D<> MobileObject::loadObject(std::istream& savedGameFile, const int lineNumber) {
+
+    // Leemos los datos de la velocidad
+    float speedX, speedY;
+
+    // Comprobamos que la lectura de los datos sea correcta y que estos sean válidos 
+    if (!(savedGameFile >> speedX >> speedY)) {
+        throw FileFormatError("saved.txt", lineNumber, "Formato inválido del vector velocidad.");
+    }
+
+    // Devolvemos el vector velocidad deseado
+    return Vector2D<>(speedX, speedY);
+}
+
+// Implementación del getter de la velocidad
+const Vector2D<>& MobileObject::getSpeed() const {
+    return speed;
+}
+
+// Implementación del método setSpeed
+void MobileObject::setSpeed(const Vector2D<>& newSpeed) {
+    speed = newSpeed;
 }

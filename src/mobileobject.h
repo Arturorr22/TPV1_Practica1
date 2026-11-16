@@ -2,9 +2,10 @@
 #define MOBILEOBJECT_H
 
 #include "sceneobject.h"
+#include "vector2D.h"
 
 class MobileObject : public SceneObject {
-    protected:
+    private:
 
         // Velocidad del objeto móvil
         Vector2D<> speed;
@@ -21,6 +22,17 @@ class MobileObject : public SceneObject {
         // Sobreescritura del método saveObject heredado de la clase SceneObject
         void saveObject(std::ostream& savedFile) const override;
         
+        // Método estático que comprueba si el rectángulo leido es válido
+        // En caso de así serlo, lo devuelve
+        static Vector2D<> loadObject(std::istream& savedGameFile, const int lineNumber);
+
+    protected:
+
+        // Getter de la velocidad
+        const Vector2D<>& getSpeed() const;
+
+        // Modificador de la velocidad
+        void setSpeed(const Vector2D<>& newSpeed);
 };
 
 #endif

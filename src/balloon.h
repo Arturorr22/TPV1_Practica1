@@ -16,6 +16,7 @@ class Balloon : public MobileObject {
 
         // Número de frames de la animación de explosión del globo
         static constexpr int EXPLOSION_FRAMES = 6;
+        static constexpr int COLORS = 6;
 
     public:
 
@@ -37,7 +38,7 @@ class Balloon : public MobileObject {
         void saveObject(std::ostream& savedFile) const override;
 
         // Método loadObject para cargar un globo en base a los datos guardados
-        static Balloon* loadObject(std::istream& savedFile, Game* game); 
+        static Balloon* loadObject(std::istream& savedGameFile, Game* game, const int lineNumber);
 
 };
 

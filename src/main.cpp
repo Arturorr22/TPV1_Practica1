@@ -6,18 +6,41 @@
 //
 
 #include "game.h"
+#include "error.h"
+
+#include <cstdlib>
+#include <exception>
 #include <iostream>
 
 using namespace std;
 
-int main(int argc, char* argv[])
+namespace {
+
+	// Título del cuadro de mensaje de los errores irrecuperables
+	constexpr const char* ERROR_TITLE = "Error";
+
+	// Informa al jugador de un error irrecuperable, con un cuadro de mensaje y por
+	// la salida de error. SDL permite mostrar el cuadro aunque SDL_Init no se haya
+	// ejecutado, así que sirve también para los errores de inicialización
+	void reportError(const char* message) {
+		cerr << message << "\n";
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, ERROR_TITLE, message, nullptr);
+	}
+}
+
+int main()
 {
 	try {
 		Game().run();
 	}
-	catch (const string& errorMessage) {
-		cout << errorMessage << "\n";
+	catch (const GameError& e) {
+		reportError(e.what());
+		return EXIT_FAILURE;
+	}
+	catch (const exception& e) {
+		reportError(e.what());
+		return EXIT_FAILURE;
 	}
 
-	return 0;
+	return EXIT_SUCCESS;
 }

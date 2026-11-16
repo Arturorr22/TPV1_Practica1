@@ -17,10 +17,14 @@ class Arrow : public MobileObject {
 		// Calcula el rectángulo de la punta a partir de la posición actual de la flecha
 		Rectangle getArrowHeadRect() const;
 
+		// Conteo de globos explotados
+		int balloons;
+
 	public:
 
 		// Constructor de la clase Arrow
-		Arrow(Game* game, const Rectangle& rect, Texture* texture, const Vector2D<>& speed);
+		Arrow(Game* game, const Rectangle& rect, Texture* texture, const Vector2D<>& speed, 
+			const int balloons);
 
 		// Renderiza la flecha en la pantalla
 		void render() const override;
@@ -36,7 +40,7 @@ class Arrow : public MobileObject {
         void saveObject(std::ostream& savedFile) const override;
 
         // Método loadObject para cargar un globo en base a los datos guardados
-        static Arrow* loadObject(std::istream& savedFile, Game* game);
+        static Arrow* loadObject(std::istream& savedGameFile, Game* game, const int lineNumber);
 };
 
 #endif // ARROW_H

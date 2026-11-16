@@ -1,6 +1,7 @@
 #include "bow.h"
 #include "game.h"
 #include "texture.h"
+#include "error.h"
 
 // Implementación del constructor de la clase Bow
 Bow::Bow(Game* game, const Rectangle& rect, Texture* texture, 
@@ -29,7 +30,7 @@ void Bow::handleEvent(const SDL_Event& event) {
         if (event.key.key == SDLK_LEFT && numArrows > 0) loaded = true;
         else if (event.key.key == SDLK_RIGHT && loaded) {
             --numArrows;
-            game->createArrow(rect);
+            GameObject::getGame()->createArrow(SceneObject::getRect());
             loaded = false;
         }
     }
@@ -40,8 +41,8 @@ void Bow::handleEvent(const SDL_Event& event) {
 
 // Implementación del método render de la clase Bow
 void Bow::render() const {
-    if (texture != nullptr) {
-        texture->renderFrame(rect.to_sdl(), BOW_ROW, (loaded ? LOADED_FRAME : UNLOADED_FRAME));
+    if (SceneObject:: getTexture() != nullptr) {
+        SceneObject:: getTexture()->renderFrame(SceneObject::getRect().to_sdl(), BOW_ROW, (loaded ? LOADED_FRAME : UNLOADED_FRAME));
     }
 }
 
@@ -51,11 +52,11 @@ bool Bow::update(const float delta) {
     // En función de la dirección comprobamos si se saldría de los límites de la pantalla
     // Si no se saldría, movemos el arco
     if (bowDir == dir::down && 
-        rect.getTopLeftCorner().getY() + rect.getHeight() + BOW_SPEED * delta <= Game::WINDOW_HEIGHT) {
-        rect.move(Vector2D(0.0f, BOW_SPEED * delta));
+        SceneObject::getRect().getTopLeftCorner().getY() + SceneObject::getRect().getHeight() + BOW_SPEED * delta <= Game::WINDOW_HEIGHT) {
+        SceneObject::moveRect(Vector2D(0.0f, BOW_SPEED * delta));
     }
-    else if (bowDir == dir::up && rect.getTopLeftCorner().getY() - BOW_SPEED * delta > 0) {
-        rect.move(Vector2D(0.0f, -BOW_SPEED * delta));
+    else if (bowDir == dir::up && SceneObject::getRect().getTopLeftCorner().getY() - BOW_SPEED * delta > 0) {
+        SceneObject::moveRect(Vector2D(0.0f, -BOW_SPEED * delta));
     }
     
     return true;
@@ -85,16 +86,20 @@ void Bow::saveObject(std::ostream& savedFile) const {
 }
 
 // Implementación de la sobreescritura del método loadObject
-Bow* Bow::loadObject(std::istream& savedFile, Game* game) {
+Bow* Bow::loadObject(std::istream& savedGameFile, Game* game, const int lineNumber) {
 
-    // Leemos los datos del rectángulo
-    float x, y, w, h;
-    savedFile >> x >> y >> w >> h;
+    // Llamamos al loadObject de SceneObject para comprobar que sea válido
+    Rectangle rect = SceneObject::loadObject(savedGameFile, lineNumber);
 
     // Leemos los datos propios del arco
-    int a, l;
-    savedFile >> a >> l;
+    int arrowCount, loadedFlag;
+
+    // Comprobamos que la lectura de los datos sea correcta y que estos sean válidos 
+    if (!(savedGameFile >> arrowCount >> loadedFlag)|| arrowCount < 0 
+        || (loadedFlag != 0 && loadedFlag != 1)) {
+        throw FileFormatError("saved.txt", lineNumber, "Formato inválido del arco.");
+    }
 
     // Creamos un arco y lo pasamos por referencia
-    return new Bow(game, Rectangle({x, y}, w, h), game->getTexture(Game::BOW), a, l);
+    return new Bow(game, rect, game->getTexture(Game::BOW), arrowCount, loadedFlag == 1);
 }

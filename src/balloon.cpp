@@ -1,6 +1,7 @@
 #include "balloon.h"
 #include "game.h"
 #include "texture.h"
+#include "error.h"
 #include <format>
 
 // Implementación del constructor de la clase Balloon
@@ -18,15 +19,14 @@ bool Balloon::hit(const Rectangle& obj) {
     if (exploded || !SceneObject::hit(obj))
         return false;
 
-    game->increasePoints();
     exploded = true;
     return true;
 }
 
 // Implementación del método render de la clase Balloon
 void Balloon::render() const {
-    if (texture != nullptr) {
-        texture->renderFrame(rect.to_sdl(), color, animationFrame);
+    if (SceneObject::getTexture() != nullptr) {
+        SceneObject::getTexture()->renderFrame(SceneObject::getRect().to_sdl(), color, animationFrame);
     }
 }
 
@@ -55,13 +55,22 @@ void Balloon::saveObject(std::ostream& savedFile) const {
 }
 
 // Implementación del método loadObject de la clase Balloon
-Balloon* Balloon::loadObject(std::istream& savedFile, Game* game) {
+Balloon* Balloon::loadObject(std::istream& savedGameFile, Game* game, const int lineNumber) {
 
-    float x, y, w, h, sX, sY;
-    savedFile >> x >> y >> w >> h >> sX >> sY;
-    int c, e, aF;
-    savedFile >> c >> e >> aF;
+    // Leemos los datos del MobileObject
+    Rectangle rect = SceneObject::loadObject(savedGameFile, lineNumber);
+    Vector2D speed = MobileObject::loadObject(savedGameFile, lineNumber);
 
-    return new Balloon(game, Rectangle({x, y}, w, h), game->getTexture(Game::BALLOON), 
-        Vector2D(sX, sY), c, e == 1 ? true : false, aF);
+    // Leemos los datos propios del globo
+    int colorIndex, explodedFlag, animationFrame;
+
+    if (!(savedGameFile >> colorIndex >> explodedFlag >> animationFrame) || speed.getX() != 0
+        || speed.getY() >= 0 || colorIndex < 0 || colorIndex > COLORS || (explodedFlag != 0 && explodedFlag != 1) 
+        || animationFrame < 0 || animationFrame >= EXPLOSION_FRAMES) {
+        throw FileFormatError("saved.txt", lineNumber, "Formato inválido del globo.");
+    }
+
+    // Devolvemos el globo
+    return new Balloon(game, rect, game->getTexture(Game::BALLOON), speed, colorIndex, explodedFlag == 1, 
+        animationFrame);
 } 

@@ -3,6 +3,7 @@
 #include <cmath>
 #include "texture.h"
 #include <format>
+#include "error.h"
 
 // Implementación del constructor de la clase Butterfly
 Butterfly::Butterfly(Game* game, const Rectangle& rect, Texture* texture, 
@@ -13,10 +14,6 @@ Butterfly::Butterfly(Game* game, const Rectangle& rect, Texture* texture,
 	, animationFrame(animationFrame)
 	, dead(dead)
 	, generator(generator)
-
-	// timeSinceDirectionChange(0.0f)
-	// , animationFrame(0)
-	// , dead(false)
 {
 	if (timeSinceDirectionChange == 0.0f) randomizeDirection();
 }
@@ -24,15 +21,15 @@ Butterfly::Butterfly(Game* game, const Rectangle& rect, Texture* texture,
 // Implementación del método hit de la clase Butterfly
 bool Butterfly::hit(const Rectangle& obj) {
 
-	// Una mariposa muerta o que no toca el rectángulo no recibe el impacto
-	if (dead || !SceneObject::hit(obj))
-		return false;
-
 	// La mariposa muere y su cadáver pasa a caer a velocidad constante
-	game->decreasePoints();
-	dead = true;
-	speed = Vector2D<>(0.0f, FALL_SPEED);
-	return true;
+	if (!dead && SceneObject::hit(obj)) {
+		GameObject::getGame()->decreasePoints();
+		dead = true;
+		MobileObject::setSpeed(Vector2D<>(0.0f, FALL_SPEED));
+	}
+
+	// Devolvemos falso para que así la flecha no incremente el número de puntos
+	return false;
 }
 
 // Implementación del método randomizeDirection de la clase Butterfly
@@ -40,31 +37,31 @@ void Butterfly::randomizeDirection() {
 
 	// Sorteamos un ángulo y lo convertimos en velocidad con el módulo fijo
 	const float angle = std::uniform_real_distribution<float>(0.0f, TWO_PI)(generator);
-	speed = Vector2D<>(FLIGHT_SPEED * std::cos(angle), FLIGHT_SPEED * std::sin(angle));
+	MobileObject::setSpeed(Vector2D<>(FLIGHT_SPEED * std::cos(angle), FLIGHT_SPEED * std::sin(angle)));
 }
 
 // Implementación del método bounceOffBorders de la clase Butterfly
 void Butterfly::bounceOffBorders() {
-	const Point2D<> corner = rect.getTopLeftCorner();
-	float speedX = speed.getX();
-	float speedY = speed.getY();
+	const Point2D<> corner = SceneObject::getRect().getTopLeftCorner();
+	float speedX = MobileObject::getSpeed().getX();
+	float speedY = MobileObject::getSpeed().getY();
 
 	// Solo invertimos la componente que apunta hacia fuera de la ventana
 	if ((corner.getX() < 0 && speedX < 0) ||
-		(corner.getX() + rect.getWidth() > Game::WINDOW_WIDTH && speedX > 0))
+		(corner.getX() + SceneObject::getRect().getWidth() > Game::WINDOW_WIDTH && speedX > 0))
 		speedX = -speedX;
 
 	if ((corner.getY() < 0 && speedY < 0) ||
-		(corner.getY() + rect.getHeight() > Game::WINDOW_HEIGHT && speedY > 0))
+		(corner.getY() + SceneObject::getRect().getHeight() > Game::WINDOW_HEIGHT && speedY > 0))
 		speedY = -speedY;
 
-	speed = Vector2D<>(speedX, speedY);
+	MobileObject::setSpeed(Vector2D<>(speedX, speedY));
 }
 
 // Implementación del método render de la clase Butterfly
 void Butterfly::render() const {
-	if (texture != nullptr) {
-		texture->renderFrame(rect.to_sdl(), 0, animationFrame);
+	if (SceneObject::getTexture() != nullptr) {
+		SceneObject::getTexture()->renderFrame(SceneObject::getRect().to_sdl(), 0, animationFrame);
 	}
 }
 
@@ -73,8 +70,8 @@ bool Butterfly::update(const float delta) {
 
 	// El cadáver cae hasta salir por el borde inferior de la ventana
 	if (dead) {
-		rect.move(speed * delta);
-		return rect.getTopLeftCorner().getY() < Game::WINDOW_HEIGHT;
+		SceneObject::moveRect(MobileObject::getSpeed() * delta);
+		return SceneObject::getRect().getTopLeftCorner().getY() < Game::WINDOW_HEIGHT;
 	}
 
 	// Cada cierto tiempo, la mariposa viva cambia de dirección al azar
@@ -85,7 +82,7 @@ bool Butterfly::update(const float delta) {
 	}
 
 	// Se mueve, rebota si intenta salirse de la ventana y avanza su animación
-	rect.move(speed * delta);
+	SceneObject::moveRect(MobileObject::getSpeed() * delta);
 	bounceOffBorders();
 	animationFrame = (animationFrame + 1) % FLIGHT_FRAMES;
 	return true;
@@ -106,13 +103,24 @@ void Butterfly::saveObject(std::ostream& savedFile) const {
 }
 
 // Implementación del método loadObject de la clase Balloon
-Butterfly* Butterfly::loadObject(std::istream& savedFile, Game* game, std::mt19937_64& generator) {
+Butterfly* Butterfly::loadObject(std::istream& savedGameFile, Game* game,
+	std::mt19937_64& generator, const int lineNumber) {
 
-    float x, y, w, h, sX, sY, tSDC;
-    savedFile >> x >> y >> w >> h >> sX >> sY >> tSDC;
-	int aF, d;
-    savedFile >> aF >> d;
+	// Leemos los datos del MobileObject
+	Rectangle rect = SceneObject::loadObject(savedGameFile, lineNumber);
+    Vector2D speed = MobileObject::loadObject(savedGameFile, lineNumber);
 
-    return new Butterfly(game, Rectangle({x, y}, w, h), game->getTexture(Game::BUTTERFLY), 
-        Vector2D(sX, sY), tSDC, aF, d == 1 ? true : false, generator);
+	// Leemos los datos propios de la mariposa
+    float directionChangeTimer;
+	int animationFrame, deadFlag;
+
+	// Comprobamos que los datos propios de la mariposa estén en el formato correcto
+	if (!(savedGameFile >> directionChangeTimer >> animationFrame >> deadFlag) || directionChangeTimer < 0.0f 
+		|| animationFrame < 0 || animationFrame >= FLIGHT_FRAMES || (deadFlag != 0 && deadFlag != 1)) {
+		throw FileFormatError("saved.txt", lineNumber, "Formato inválido de la mariposa.");
+	}
+	
+	// Devolvemos la mariposa
+    return new Butterfly(game, rect, game->getTexture(Game::BUTTERFLY), speed, directionChangeTimer, 
+		animationFrame, deadFlag == 1, generator);
 }
