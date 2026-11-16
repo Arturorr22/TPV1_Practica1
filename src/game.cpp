@@ -372,7 +372,10 @@ Game::update() {
 
 			// Comprobamos si se trata de la última flecha de la que disponía el
 			// jugador
-			if (bow->getArrows() == 0 && *it == lastArrow) exit = true;
+			if (bow->getArrows() == 0 && *it == lastArrow) {
+				cout << "Has perdido\n";
+				exit = true;
+			}
 			delete *it;
 			it = sceneObjects.erase(it);
 		}
